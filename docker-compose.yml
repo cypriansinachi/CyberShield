@@ -1,0 +1,16 @@
+services:
+  cirp:
+    build: .
+    ports:
+      - "3000:3000"
+    env_file: .env.local # created by `npm run setup`; holds the secrets
+    environment:
+      # Plain-HTTP demo. Behind HTTPS (recommended), remove this line.
+      SECURE_COOKIES: "false"
+      SHOW_DEMO_ACCOUNTS: "true"
+    volumes:
+      - cirp-data:/app/data # SQLite database, including encrypted evidence
+    restart: unless-stopped
+
+volumes:
+  cirp-data:

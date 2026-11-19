@@ -1,0 +1,55 @@
+{
+  "name": "cybersecurity-incident-platform",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "predev": "node scripts/setup.mjs --quiet",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "db:seed": "tsx --conditions=react-server scripts/seed.ts",
+    "db:reset": "tsx --conditions=react-server scripts/seed.ts --reset",
+    "audit:verify": "tsx --conditions=react-server scripts/verify-audit.ts",
+    "db:seed:remote": "tsx --conditions=react-server scripts/seed.ts --remote --force",
+    "db:reset:remote": "tsx --conditions=react-server scripts/seed.ts --remote --reset --force",
+    "setup:production": "node scripts/setup.mjs --production",
+    "audit:verify:remote": "tsx --conditions=react-server scripts/verify-audit.ts --remote"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.18.0",
+    "clsx": "^2.1.1",
+    "drizzle-orm": "^0.45.4",
+    "lucide-react": "^1.72.0",
+    "motion": "^14.14.0",
+    "next": "16.4.6",
+    "qrcode": "^1.5.4",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "recharts": "^3.10.1",
+    "server-only": "^0.0.1",
+    "tailwind-merge": "^3.7.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@tailwindcss/turbopack": "4.3.3",
+    "@types/node": "^22.20.5",
+    "@types/qrcode": "^1.5.6",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.6",
+    "tailwindcss": "4.3.3",
+    "tsx": "^4.23.15",
+    "typescript": "^5",
+    "vitest": "^5.1.0"
+  },
+  "description": "Cybersecurity Incident Reporting and Response Platform (CIRP): incident reporting, risk classification, response workflow, security dashboards, tamper-evident audit trail and compliance tracking.",
+  "engines": {
+    "node": ">=20.12"
+  }
+}

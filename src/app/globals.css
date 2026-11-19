@@ -1,0 +1,354 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens. Components only use these semantic tokens, so light and dark
+ * mode are handled in one place. Severity colours use a fixed status palette
+ * (critical / serious / warning / good) and always appear with a text label.
+ */
+:root {
+  color-scheme: light;
+  --background: #f5f6f8;
+  --foreground: #0b1220;
+  --card: #ffffff;
+  --muted: #f0f2f5;
+  --muted-foreground: #5b6474;
+  --border: #e3e7ee;
+  --input: #d4dae4;
+  --primary: #2563eb;
+  --primary-foreground: #ffffff;
+  --primary-soft: #eaf1ff;
+  --ring: #93b4f8;
+
+  --sidebar: #0b1220;
+  --sidebar-foreground: #c7cfdb;
+  --sidebar-muted: #7d889b;
+  --sidebar-accent: #172034;
+  --sidebar-border: #1c2638;
+
+  --critical: #d03b3b;
+  --critical-soft: #fdecec;
+  --critical-ink: #a32222;
+  --serious: #ec835a;
+  --serious-soft: #fdf0ea;
+  --serious-ink: #a6461d;
+  --warning: #fab219;
+  --warning-soft: #fff5dc;
+  --warning-ink: #855600;
+  --good: #0ca30c;
+  --good-soft: #e7f6e7;
+  --good-ink: #106410;
+
+  --chart-1: #2a78d6;
+  --chart-2: #1baf7a;
+  --chart-grid: #e6e8ec;
+  --chart-axis: #898781;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --background: #0a0e15;
+  --foreground: #e7ebf1;
+  --card: #111722;
+  --muted: #19212e;
+  --muted-foreground: #97a2b4;
+  --border: #232d3d;
+  --input: #2d394c;
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  --primary-soft: #14223d;
+  --ring: #2f5fb3;
+
+  --sidebar: #06090f;
+  --sidebar-foreground: #c7cfdb;
+  --sidebar-muted: #77839a;
+  --sidebar-accent: #131b2b;
+  --sidebar-border: #151d2c;
+
+  --critical-soft: #3a1517;
+  --critical-ink: #f3a3a3;
+  --serious-soft: #3a2013;
+  --serious-ink: #f4b490;
+  --warning-soft: #362a0b;
+  --warning-ink: #f5cf6b;
+  --good-soft: #0f2c14;
+  --good-ink: #83d683;
+
+  --chart-1: #3987e5;
+  --chart-2: #199e70;
+  --chart-grid: #232d3d;
+  --chart-axis: #898781;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]):not([data-theme="dark"]) {
+    color-scheme: dark;
+    --background: #0a0e15;
+    --foreground: #e7ebf1;
+    --card: #111722;
+    --muted: #19212e;
+    --muted-foreground: #97a2b4;
+    --border: #232d3d;
+    --input: #2d394c;
+    --primary: #3b82f6;
+    --primary-foreground: #ffffff;
+    --primary-soft: #14223d;
+    --ring: #2f5fb3;
+
+    --sidebar: #06090f;
+    --sidebar-foreground: #c7cfdb;
+    --sidebar-muted: #77839a;
+    --sidebar-accent: #131b2b;
+    --sidebar-border: #151d2c;
+
+    --critical-soft: #3a1517;
+    --critical-ink: #f3a3a3;
+    --serious-soft: #3a2013;
+    --serious-ink: #f4b490;
+    --warning-soft: #362a0b;
+    --warning-ink: #f5cf6b;
+    --good-soft: #0f2c14;
+    --good-ink: #83d683;
+
+    --chart-1: #3987e5;
+    --chart-2: #199e70;
+    --chart-grid: #232d3d;
+    --chart-axis: #898781;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft: var(--primary-soft);
+  --color-ring: var(--ring);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-muted: var(--sidebar-muted);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-border: var(--sidebar-border);
+
+  --color-critical: var(--critical);
+  --color-critical-soft: var(--critical-soft);
+  --color-critical-ink: var(--critical-ink);
+  --color-serious: var(--serious);
+  --color-serious-soft: var(--serious-soft);
+  --color-serious-ink: var(--serious-ink);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-ink: var(--warning-ink);
+  --color-good: var(--good);
+  --color-good-soft: var(--good-soft);
+  --color-good-ink: var(--good-ink);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+
+  --font-sans: var(--font-body), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-heading), var(--font-body), system-ui, sans-serif;
+  --font-mono: var(--font-code), ui-monospace, SFMono-Regular, monospace;
+}
+
+@layer base {
+  *,
+  ::before,
+  ::after {
+    border-color: var(--border);
+  }
+  body {
+    background: var(--background);
+    color: var(--foreground);
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--primary) 25%, transparent);
+  }
+  /* Search fields have their own clear button. */
+  input[type="search"]::-webkit-search-cancel-button {
+    appearance: none;
+  }
+}
+
+/* ── Typography ─────────────────────────────────────────────── */
+@layer base {
+  body {
+    font-feature-settings: "cv11", "ss01", "calt";
+    letter-spacing: -0.006em;
+  }
+  h1,
+  h2,
+  h3,
+  .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+  code,
+  .font-mono {
+    font-feature-settings: "zero", "calt" 0;
+    letter-spacing: 0;
+  }
+}
+
+/* ── Theme toggle icons (follow the same rules as the colour tokens) ── */
+.theme-sun {
+  display: none;
+}
+:root[data-theme="dark"] .theme-sun {
+  display: block;
+}
+:root[data-theme="dark"] .theme-moon {
+  display: none;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]):not([data-theme="dark"]) .theme-sun {
+    display: block;
+  }
+  :root:not([data-theme="light"]):not([data-theme="dark"]) .theme-moon {
+    display: none;
+  }
+}
+/* Smooth cross-fade while switching theme (class added briefly by the toggle). */
+.theme-switching,
+.theme-switching *,
+.theme-switching *::before,
+.theme-switching *::after {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, fill 0.3s ease, stroke 0.3s ease !important;
+}
+
+/* ── Motion ─────────────────────────────────────────────────── */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes slide-in-left {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes grow-x {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--critical) 55%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 8px transparent;
+  }
+}
+
+/* Page entrance: each top-level block rises in, slightly staggered. */
+.animate-page > * {
+  animation: fade-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.animate-page > *:nth-child(2) { animation-delay: 50ms; }
+.animate-page > *:nth-child(3) { animation-delay: 100ms; }
+.animate-page > *:nth-child(4) { animation-delay: 150ms; }
+.animate-page > *:nth-child(5) { animation-delay: 200ms; }
+.animate-page > *:nth-child(6) { animation-delay: 250ms; }
+.animate-page > *:nth-child(n + 7) { animation-delay: 300ms; }
+
+/* Children of a grid/list appear one after another. */
+.stagger > * {
+  animation: fade-up 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.stagger > *:nth-child(2) { animation-delay: 40ms; }
+.stagger > *:nth-child(3) { animation-delay: 80ms; }
+.stagger > *:nth-child(4) { animation-delay: 120ms; }
+.stagger > *:nth-child(5) { animation-delay: 160ms; }
+.stagger > *:nth-child(6) { animation-delay: 200ms; }
+.stagger > *:nth-child(n + 7) { animation-delay: 240ms; }
+
+.animate-fade-in { animation: fade-in 0.25s ease both; }
+.animate-fade-up { animation: fade-up 0.35s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.animate-pop { animation: pop-in 0.18s cubic-bezier(0.22, 1, 0.36, 1) both; transform-origin: top right; }
+.animate-drawer { animation: slide-in-left 0.28s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.animate-pulse-ring { animation: pulse-ring 1.6s ease-out infinite; }
+
+/* Bars and meters draw from their baseline. */
+.bar-grow {
+  transform-origin: left center;
+  animation: grow-x 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+}
+
+details[open] > summary ~ * {
+  animation: fade-up 0.22s ease both;
+}
+
+.skeleton {
+  border-radius: 0.5rem;
+  background: linear-gradient(90deg, var(--muted) 25%, color-mix(in oklab, var(--muted) 55%, var(--card)) 50%, var(--muted) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+.lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -12px color-mix(in oklab, var(--foreground) 30%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+    color: #000;
+  }
+}
