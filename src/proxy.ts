@@ -9,7 +9,7 @@ import { NextResponse, type NextRequest } from 'next/server';
  *     This is a convenience only: the real session check happens in the data
  *     access layer (src/server/auth/dal.ts) for every page, action and API route.
  */
-const PUBLIC_PATHS = ['/login', '/register', '/api/health', '/api/cron'];
+const PUBLIC_PATHS = ['/login', '/register', '/api/health', '/api/cron', '/api/setup'];
 const SESSION_COOKIE = 'cirp_session';
 
 export function proxy(request: NextRequest) {
