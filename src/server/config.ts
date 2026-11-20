@@ -33,8 +33,19 @@ const resolvePath = (p: string) => (path.isAbsolute(p) ? p : path.join(/*turbopa
  *  - Local / Docker:  a SQLite file, data/cirp.db by default (DATABASE_PATH to move it)
  */
 function databaseUrl() {
-  const remote = process.env.TURSO_DATABASE_URL || process.env.DATABASE_URL;
-  if (remote) return remote;
+  // Tolerate values pasted with surrounding quotes or whitespace.
+  const remote = (process.env.TURSO_DATABASE_URL || process.env.DATABASE_URL || '').trim().replace(/^["']|["']$/g, '');
+  if (remote) {
+    // libsql:// would use a long-lived WebSocket. Serverless functions are frozen
+    // between requests, so use stateless HTTPS instead (same database, same API).
+    return remote.replace(/^libsql:\/\//, 'https://');
+  }
+  if (process.env.VERCEL) {
+    throw new Error(
+      'TURSO_DATABASE_URL is not set for this Vercel deployment. Connect a Turso database (Storage → Turso) or add ' +
+        'TURSO_DATABASE_URL and TURSO_AUTH_TOKEN under Settings → Environment Variables, then redeploy.',
+    );
+  }
   return `file:${resolvePath(process.env.DATABASE_PATH || 'data/cirp.db')}`;
 }
 
@@ -46,7 +57,10 @@ export const config = {
     get url() {
       return databaseUrl();
     },
-    authToken: process.env.TURSO_AUTH_TOKEN || process.env.DATABASE_AUTH_TOKEN || undefined,
+    get authToken() {
+      const t = (process.env.TURSO_AUTH_TOKEN || process.env.DATABASE_AUTH_TOKEN || '').trim().replace(/^["']|["']$/g, '');
+      return t || undefined;
+    },
   },
 
   session: {

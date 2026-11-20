@@ -474,7 +474,9 @@ async function main() {
   console.log('[seed] Done. Start the app with "npm run dev" and sign in with any demo account.');
 }
 
-main().catch((err) => {
+main()
+  .then(() => process.exit(0)) // close the database connection (a WebSocket would keep Node alive)
+  .catch((err) => {
   console.error(err);
   process.exit(1);
 });
