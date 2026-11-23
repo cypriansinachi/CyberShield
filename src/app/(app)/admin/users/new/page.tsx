@@ -17,7 +17,7 @@ export default async function NewUserPage() {
       </Link>
       <PageHeader title="Add a user" description="A one-time temporary password is generated. The user must change it at first sign-in." />
       <Card className="max-w-3xl">
-        <CardHeader title="Account details" description="Grant the lowest role that lets the person do their job." />
+        <CardHeader title="Account details" description="The account starts as a Customer. Give it a role afterwards from the account page." />
         <CardBody>
           <CreateUserForm />
         </CardBody>

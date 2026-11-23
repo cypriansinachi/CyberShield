@@ -11,7 +11,7 @@ export const ROLES = {
   reporter: {
     // Stored as 'reporter' in the database; shown to people as "Customer".
     label: 'Customer',
-    description: 'A Nexora customer. Can report security problems they notice and follow the progress of their own reports.',
+    description: 'Every account starts here. Can report security problems and follow the progress of their own reports.',
   },
   analyst: {
     label: 'Security Analyst',

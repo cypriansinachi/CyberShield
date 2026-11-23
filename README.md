@@ -100,6 +100,8 @@ Least privilege: permissions belong to roles ([src/lib/rbac.ts](src/lib/rbac.ts)
 | Audit log | | | | ✔ | ✔ |
 | User and role administration | | | | ✔ | |
 
+**How roles are given.** Every account starts as a **Customer**, whether the person signs up or an administrator adds them. Only a System Administrator can give a role: open **Users & roles**, choose the person, pick a role and save. Setting the role back to Customer removes the access. A role change takes effect immediately (the person is signed out everywhere), is recorded in the audit log with the old and new role, and administrators cannot change their own role.
+
 ## How it works
 
 1. **Report.** A customer (or a team member) submits the form. The server validates it, classifies the risk, sets SLA deadlines, generates the playbook, encrypts the evidence, records an audit entry and notifies responders. Reports involving personal data get a 72-hour regulator deadline.

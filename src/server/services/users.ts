@@ -57,8 +57,12 @@ export async function recentAuditForUser(userId: number, limit = 15) {
     .all();
 }
 
+/**
+ * Every new account starts as a Customer (stored as 'reporter'). Roles are only
+ * ever given afterwards, by an administrator, through adminUpdateUser.
+ */
 export async function adminCreateUser(
-  input: { fullName: string; email: string; department: string | null; role: Role },
+  input: { fullName: string; email: string },
   ctx: AuditContext,
 ): Promise<{ ok: true; user: SafeUser; tempPassword: string } | { ok: false; error: string; field?: string }> {
   const email = input.email.trim().toLowerCase();
@@ -70,8 +74,8 @@ export async function adminCreateUser(
     .values({
       fullName: input.fullName,
       email,
-      department: input.department,
-      role: input.role,
+      department: null,
+      role: 'reporter',
       passwordHash: await hashPassword(tempPassword),
       mustChangePassword: true,
       passwordChangedAt: ts,
@@ -80,7 +84,7 @@ export async function adminCreateUser(
     })
     .returning()
     .get();
-  await recordAudit(ctx, { action: 'user.created', entityType: 'user', entityId: user.id, details: { email, role: input.role } });
+  await recordAudit(ctx, { action: 'user.created', entityType: 'user', entityId: user.id, details: { email, role: 'reporter' } });
   return { ok: true, user: toSafeUser(user), tempPassword };
 }
 

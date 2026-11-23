@@ -4,7 +4,7 @@ import { useActionState, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Copy, KeyRound, ShieldCheck } from 'lucide-react';
-import { ActionForm, Field, FormMessage, FormStateProvider, Input, Select, SubmitButton, useFormResult } from '@/components/ui/form';
+import { ActionForm, Choice, Field, FormMessage, FormStateProvider, Input, Select, SubmitButton, useFormResult } from '@/components/ui/form';
 import { Alert } from '@/components/ui/misc';
 import { Button } from '@/components/ui/button';
 import { createUserAction, updateUserAction, userSecurityAction } from '@/server/actions/admin';
@@ -69,8 +69,8 @@ function CreateUserFormInner({ onAnother }: { onAnother: () => void }) {
           <Alert tone="success" title={state.message} />
           <TempPassword value={String(state.data!.tempPassword)} email={String(state.data!.email)} />
           <div className="mt-4 flex gap-2">
-            <Link href={`/admin/users/${state.data!.userId}`} className="text-sm font-medium text-primary hover:underline">
-              View account
+            <Link href={`/admin/users/${state.data!.userId}#role`} className="text-sm font-medium text-primary hover:underline">
+              Give this person a role
             </Link>
             <span className="text-muted-foreground">·</span>
             <button type="button" onClick={onAnother} className="text-sm font-medium text-primary hover:underline">
@@ -87,24 +87,10 @@ function CreateUserFormInner({ onAnother }: { onAnother: () => void }) {
             <Field label="Email address" name="email">
               <Input name="email" type="email" />
             </Field>
-            <Field label="Department" name="department" hint="Team members only. Leave as None for a customer.">
-              <Select name="department" defaultValue="">
-                <option value="">None (customer)</option>
-                {DEPARTMENTS.map((d) => (
-                  <option key={d}>{d}</option>
-                ))}
-              </Select>
-            </Field>
-            <Field label="Role" name="role">
-              <Select name="role" defaultValue="reporter">
-                {ROLE_KEYS.map((r) => (
-                  <option key={r} value={r}>
-                    {ROLES[r].label}
-                  </option>
-                ))}
-              </Select>
-            </Field>
           </div>
+          <Alert tone="info">
+            New accounts start as <strong>Customers</strong>. To give someone a role, such as Security Analyst, open their account after creating it.
+          </Alert>
           <FormMessage />
           <SubmitButton pendingText="Creating…">Create account</SubmitButton>
         </form>
@@ -115,20 +101,34 @@ function CreateUserFormInner({ onAnother }: { onAnother: () => void }) {
 
 export function UpdateUserForm({ user, isSelf }: { user: { id: number; role: Role; department: string | null; isActive: boolean }; isSelf: boolean }) {
   return (
-    <ActionForm action={updateUserAction} resetOnSuccess={false} className="space-y-4">
+    <ActionForm action={updateUserAction} resetOnSuccess={false} className="space-y-5">
       <input type="hidden" name="userId" value={user.id} />
-      <div className="grid gap-4 sm:grid-cols-3">
-        <Field label="Role" name="role" hint={isSelf ? 'You cannot change your own role.' : undefined}>
-          <Select name="role" defaultValue={user.role} disabled={isSelf}>
+      {isSelf ? (
+        <>
+          <Alert tone="info">
+            Your role is <strong>{ROLES[user.role].label}</strong>. Another administrator must change it: you cannot change your own role.
+          </Alert>
+          <input type="hidden" name="role" value={user.role} />
+        </>
+      ) : (
+        <fieldset>
+          <legend className="mb-1.5 text-sm font-medium">Role</legend>
+          <div className="grid gap-2 sm:grid-cols-2">
             {ROLE_KEYS.map((r) => (
-              <option key={r} value={r}>
-                {ROLES[r].label}
-              </option>
+              <Choice
+                key={r}
+                name="role"
+                value={r}
+                defaultChecked={user.role === r}
+                label={r === 'reporter' ? `${ROLES[r].label} (default, no role)` : ROLES[r].label}
+                description={ROLES[r].description}
+              />
             ))}
-          </Select>
-          {isSelf && <input type="hidden" name="role" value={user.role} />}
-        </Field>
-        <Field label="Department" name="department">
+          </div>
+        </fieldset>
+      )}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label="Department" name="department" hint="Team members only. Leave as None for a customer.">
           <Select name="department" defaultValue={user.department ?? ''}>
             <option value="">None (customer)</option>
             {DEPARTMENTS.map((d) => (
@@ -144,8 +144,8 @@ export function UpdateUserForm({ user, isSelf }: { user: { id: number; role: Rol
           {isSelf && <input type="hidden" name="isActive" value="true" />}
         </Field>
       </div>
-      <SubmitButton variant="secondary" size="sm">
-        Save changes
+      <SubmitButton size="sm" pendingText="Saving…">
+        Save role & access
       </SubmitButton>
     </ActionForm>
   );

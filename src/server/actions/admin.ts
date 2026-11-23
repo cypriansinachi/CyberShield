@@ -30,8 +30,6 @@ export async function createUserAction(_prev: ActionState, fd: FormData): Promis
     .object({
       fullName: text('Full name', 2, 100),
       email: email(),
-      department: optionalDepartment,
-      role: z.enum(ROLE_KEYS, { error: 'Select a role.' }),
     })
     .safeParse(values);
   if (!parsed.success) return invalid(parsed.error, values);

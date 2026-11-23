@@ -73,7 +73,7 @@ export default async function UsersPage({ searchParams }: PageProps<'/admin/user
     <>
       <PageHeader
         title="Users & roles"
-        description="Manage accounts and apply least privilege. Role changes and deactivations take effect immediately and are audited."
+        description="Everyone starts as a Customer; only an administrator gives roles. Role changes and deactivations take effect immediately and are audited."
         actions={
           <Link href="/admin/users/new" className={buttonClass({ size: 'sm' })}>
             <UserPlus aria-hidden /> Add user

@@ -43,8 +43,12 @@ export default async function UserDetailPage({ params }: PageProps<'/admin/users
 
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="space-y-6">
-          <Card>
-            <CardHeader title="Role & access" icon={<UserCog />} description={ROLES[u.role].description} />
+          <Card id="role" className="scroll-mt-24">
+            <CardHeader
+              title="Role & access"
+              icon={<UserCog />}
+              description="Everyone starts as a Customer. Give a role to let this person work on incidents; set it back to Customer to remove it."
+            />
             <CardBody>
               <UpdateUserForm user={{ id: u.id, role: u.role, department: u.department, isActive: u.isActive }} isSelf={isSelf} />
             </CardBody>
