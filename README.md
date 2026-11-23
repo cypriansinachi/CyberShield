@@ -84,7 +84,17 @@ Nexora's team uses `@nexora.local` addresses; customers use `@example.com` (a do
 | `auditor@nexora.local` | Compliance Auditor | Read-only: incidents, compliance, audit log, exports |
 | `admin@nexora.local` | System Administrator | Users and roles, unlock `ngozi.uche@example.com` (locked by a simulated brute-force attack) |
 
-More accounts with the same password: `ibrahim.musa@nexora.local` (second analyst) and customers `grace.okafor@example.com`, `yusuf.bello@example.com`, `daniel.adebayo@example.com`. New sign-ups are customers.
+More accounts with the same password, so there are at least three people in every team role to choose from when assigning work:
+
+| Role | Accounts |
+|---|---|
+| System Administrator | `admin@`, `segun.ogunleye@`, `halima.abubakar@nexora.local` |
+| Security Manager | `manager@`, `amina.lawal@`, `chinedu.okeke@nexora.local` |
+| Security Analyst | `analyst@`, `ibrahim.musa@`, `tolulope.ajayi@nexora.local` |
+| Compliance Auditor | `auditor@`, `kemi.oladipo@`, `femi.johnson@nexora.local` |
+| Customer | `customer@`, `grace.okafor@`, `yusuf.bello@`, `daniel.adebayo@`, `ngozi.uche@example.com` |
+
+New sign-ups are customers. Running the demo-data setup again on an existing database adds any demo accounts that are missing and leaves the incidents alone.
 
 ## Roles and permissions
 

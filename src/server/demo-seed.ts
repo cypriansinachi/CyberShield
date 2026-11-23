@@ -45,14 +45,22 @@ const iso = (ms: number) => new Date(ms).toISOString();
 
 // ───────────────────────────── Users ─────────────────────────────
 
-// Nexora's security team (and an administrator and auditor), plus Nexora customers.
-// Customer addresses use example.com, a domain reserved for documentation.
+// Nexora's team (at least three people in each role, so assignment has a real
+// choice), plus Nexora customers. Customer addresses use example.com, a domain
+// reserved for documentation.
 const PEOPLE: { key: string; name: string; email: string; role: Role; dept: string | null }[] = [
   { key: 'admin', name: 'Adaeze Okonkwo', email: 'admin@nexora.local', role: 'admin', dept: 'Information Technology' },
+  { key: 'admin2', name: 'Segun Ogunleye', email: 'segun.ogunleye@nexora.local', role: 'admin', dept: 'Information Technology' },
+  { key: 'admin3', name: 'Halima Abubakar', email: 'halima.abubakar@nexora.local', role: 'admin', dept: 'Information Technology' },
   { key: 'manager', name: 'Tunde Bakare', email: 'manager@nexora.local', role: 'manager', dept: 'Security Operations' },
+  { key: 'manager2', name: 'Amina Lawal', email: 'amina.lawal@nexora.local', role: 'manager', dept: 'Security Operations' },
+  { key: 'manager3', name: 'Chinedu Okeke', email: 'chinedu.okeke@nexora.local', role: 'manager', dept: 'Security Operations' },
   { key: 'analyst', name: 'Chiamaka Eze', email: 'analyst@nexora.local', role: 'analyst', dept: 'Security Operations' },
   { key: 'analyst2', name: 'Ibrahim Musa', email: 'ibrahim.musa@nexora.local', role: 'analyst', dept: 'Security Operations' },
+  { key: 'analyst3', name: 'Tolulope Ajayi', email: 'tolulope.ajayi@nexora.local', role: 'analyst', dept: 'Security Operations' },
   { key: 'auditor', name: 'Funmilayo Adeyemi', email: 'auditor@nexora.local', role: 'auditor', dept: 'Legal & Compliance' },
+  { key: 'auditor2', name: 'Kemi Oladipo', email: 'kemi.oladipo@nexora.local', role: 'auditor', dept: 'Legal & Compliance' },
+  { key: 'auditor3', name: 'Femi Johnson', email: 'femi.johnson@nexora.local', role: 'auditor', dept: 'Legal & Compliance' },
   { key: 'customer', name: 'Emeka Nwosu', email: 'customer@example.com', role: 'reporter', dept: null },
   { key: 'grace', name: 'Grace Okafor', email: 'grace.okafor@example.com', role: 'reporter', dept: null },
   { key: 'yusuf', name: 'Yusuf Bello', email: 'yusuf.bello@example.com', role: 'reporter', dept: null },
@@ -60,10 +68,12 @@ const PEOPLE: { key: string; name: string; email: string; role: Role; dept: stri
   { key: 'daniel', name: 'Daniel Adebayo', email: 'daniel.adebayo@example.com', role: 'reporter', dept: null },
 ];
 const CUSTOMERS = ['customer', 'grace', 'yusuf', 'ngozi', 'daniel'];
-const TEAM_REPORTERS = ['analyst', 'analyst2', 'manager', 'admin'];
+const TEAM_REPORTERS = ['analyst', 'analyst2', 'analyst3', 'manager', 'manager2', 'admin'];
 
+/** Create any demo account that does not exist yet; existing accounts are left untouched. */
 async function seedUsers() {
   const out: Record<string, User> = {};
+  const createdEmails: string[] = [];
   for (const p of PEOPLE) {
     const created = iso(NOW - 75 * DAY);
     const existing = await db.select().from(users).where(eq(users.email, p.email)).get();
@@ -71,6 +81,7 @@ async function seedUsers() {
       out[p.key] = existing;
       continue;
     }
+    createdEmails.push(p.email);
     out[p.key] = await db
       .insert(users)
       .values({
@@ -87,7 +98,7 @@ async function seedUsers() {
       .returning()
       .get();
   }
-  return out;
+  return { people: out, createdEmails };
 }
 
 // ───────────────────────────── Incident templates ─────────────────────────────
@@ -386,15 +397,24 @@ export type SeedResult = { skipped: boolean; users: number; incidents: number; e
 export async function seedDemoData(log: (msg: string) => void = () => {}): Promise<SeedResult> {
   db = await getDb();
   if (await db.select({ id: users.id }).from(users).where(eq(users.email, DEMO_ADMIN_EMAIL)).get()) {
-    log('[seed] Demo accounts already exist; nothing to do.');
-    return { skipped: true, users: 0, incidents: 0, escalated: 0 };
+    // The demo is already loaded: leave its incidents alone, but add any demo
+    // accounts introduced since (e.g. extra team members for assignment).
+    NOW = Date.now();
+    const { createdEmails } = await seedUsers();
+    if (createdEmails.length) {
+      await recordAudit({ actor: null }, { action: 'system.seed_users_added', details: { emails: createdEmails } });
+      log(`[seed] Demo data already loaded; added ${createdEmails.length} missing demo account(s): ${createdEmails.join(', ')}`);
+    } else {
+      log('[seed] Demo accounts already exist; nothing to do.');
+    }
+    return { skipped: true, users: createdEmails.length, incidents: 0, escalated: 0 };
   }
   // Fresh, deterministic timeline relative to "now" on every run.
   NOW = Date.now();
   seed = 20261113;
 
   await recordAudit({ actor: null }, { action: 'system.seed_started', details: { note: 'Demo data generated by src/server/demo-seed.ts' } });
-  const people = await seedUsers();
+  const { people } = await seedUsers();
   log(`[seed] Created ${PEOPLE.length} users (password for all: ${DEMO_PASSWORD})`);
 
   // Hand-placed scenarios that make every screen interesting.
@@ -422,7 +442,7 @@ export async function seedDemoData(log: (msg: string) => void = () => {}): Promi
     const tpl = pick(routine);
     const target: Status = rand() < 0.12 ? 'rejected' : ageHours > 10 * 24 ? (rand() < 0.88 ? 'closed' : pick(['recovered', 'eradicated'] as const)) : pick(['investigating', 'contained', 'eradicated', 'recovered', 'closed'] as const);
     const reporter = pick(T[tpl].team ? TEAM_REPORTERS : CUSTOMERS);
-    plans.push({ tpl, reporter, ageHours, target, assignee: pick(['analyst', 'analyst', 'analyst2', 'analyst2', 'manager']), notify: 'on_time' });
+    plans.push({ tpl, reporter, ageHours, target, assignee: pick(['analyst', 'analyst', 'analyst2', 'analyst2', 'analyst3', 'manager', 'manager2']), notify: 'on_time' });
   }
   plans.sort((a, b) => b.ageHours - a.ageHours); // oldest first → references in date order
 

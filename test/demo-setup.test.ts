@@ -18,10 +18,20 @@ describe('demo data setup endpoint', () => {
 
   it('seeds once, then leaves existing data alone', async () => {
     const first = await (await call()).json();
-    expect(first).toMatchObject({ reset: false, skipped: false, users: 10 });
+    expect(first).toMatchObject({ reset: false, skipped: false, users: 17 });
     expect(await count('incidents')).toBe(first.incidents);
     const second = await (await call()).json();
-    expect(second).toMatchObject({ reset: false, skipped: true });
+    expect(second).toMatchObject({ reset: false, skipped: true, users: 0 });
+  }, 60_000);
+
+  it('adds demo accounts that are missing without touching incidents', async () => {
+    const incidentsBefore = await count('incidents');
+    await sqlOne("DELETE FROM users WHERE email = 'femi.johnson@nexora.local' RETURNING id");
+    const r = await (await call()).json();
+    expect(r).toMatchObject({ skipped: true, users: 1, incidents: 0 });
+    expect(await count('incidents')).toBe(incidentsBefore);
+    const back = await sqlOne<{ role: string }>("SELECT role FROM users WHERE email = 'femi.johnson@nexora.local'");
+    expect(back.role).toBe('auditor');
   }, 60_000);
 
   it('?reset=all-data wipes everything and rebuilds the demo', async () => {
@@ -29,10 +39,10 @@ describe('demo data setup endpoint', () => {
       `INSERT INTO users (full_name, email, role, password_hash, password_changed_at, created_at, updated_at)
        VALUES ('Someone Else', 'someone@example.com', 'reporter', 'x', '2026-01-01', '2026-01-01', '2026-01-01') RETURNING id`,
     );
-    expect(extra.id).toBeGreaterThan(10);
+    expect(extra.id).toBeGreaterThan(17);
     const r = await (await call('?reset=all-data')).json();
-    expect(r).toMatchObject({ reset: true, skipped: false, users: 10 });
-    expect(await count('users')).toBe(10);
+    expect(r).toMatchObject({ reset: true, skipped: false, users: 17 });
+    expect(await count('users')).toBe(17);
     expect(await count('incidents')).toBe(r.incidents);
     const admin = await sqlOne<{ role: string; department: string }>("SELECT role, department FROM users WHERE email = 'admin@nexora.local'");
     expect(admin).toMatchObject({ role: 'admin' });
