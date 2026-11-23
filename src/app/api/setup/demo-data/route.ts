@@ -1,5 +1,5 @@
-import crypto from 'node:crypto';
 import { resetDatabase } from '@/server/db';
+import { hasCronSecret } from '@/server/security/cron-auth';
 import { seedDemoData } from '@/server/demo-seed';
 
 // Seeding makes several hundred queries; allow time on serverless hosts.
@@ -20,11 +20,7 @@ export const maxDuration = 300;
  * nothing if the demo administrator already exists.
  */
 export async function POST(req: Request) {
-  const secret = process.env.CRON_SECRET;
-  const sent = req.headers.get('authorization') ?? '';
-  const expected = `Bearer ${secret}`;
-  const authorised = !!secret && sent.length === expected.length && crypto.timingSafeEqual(Buffer.from(sent), Buffer.from(expected));
-  if (!authorised) return new Response('Unauthorized', { status: 401 });
+  if (!hasCronSecret(req)) return new Response('Unauthorized', { status: 401 });
   if (process.env.SHOW_DEMO_ACCOUNTS !== 'true') {
     return Response.json({ error: 'Demo mode is off (SHOW_DEMO_ACCOUNTS is not "true").' }, { status: 403 });
   }
