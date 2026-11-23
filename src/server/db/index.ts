@@ -5,7 +5,7 @@ import { createClient, type Client, type Transaction } from '@libsql/client';
 import { drizzle, type LibSQLDatabase } from 'drizzle-orm/libsql';
 import { config } from '../config';
 import * as schema from './schema';
-import { BOOTSTRAP_SQL } from './bootstrap';
+import { ALL_TABLES, BOOTSTRAP_SQL } from './bootstrap';
 
 /**
  * Database connection (libSQL).
@@ -104,6 +104,18 @@ function serialised(client: Client): Client {
   });
 }
 
+/**
+ * In-place upgrades for databases created by an earlier version of the schema.
+ * Each step checks before it changes anything, so it is safe to run on every start.
+ */
+async function migrate(client: Client) {
+  const columns = (await client.execute('PRAGMA table_info(incidents)')).rows.map((r) => String(r.name));
+  // v2: incidents record the affected CyberShield service rather than a staff department.
+  if (columns.includes('department') && !columns.includes('affected_service')) {
+    await client.execute('ALTER TABLE incidents RENAME COLUMN department TO affected_service');
+  }
+}
+
 function open(): Handles {
   const url = config.database.url;
   if (url.startsWith('file:')) fs.mkdirSync(path.dirname(url.slice('file:'.length)), { recursive: true });
@@ -118,6 +130,7 @@ function open(): Handles {
   const ready = (async () => {
     if (url.startsWith('file:')) await client.execute('PRAGMA journal_mode = WAL');
     await client.executeMultiple(BOOTSTRAP_SQL);
+    await migrate(client);
   })();
   // A failed start (e.g. network) must not poison every later request.
   ready.catch(() => {
@@ -153,6 +166,16 @@ export async function sqlAll<T>(sql: string, args: (string | number | null)[] = 
 
 export async function sqlOne<T>(sql: string, args: (string | number | null)[] = []): Promise<T> {
   return (await sqlAll<T>(sql, args))[0];
+}
+
+/**
+ * Drop every table and recreate the empty schema. This destroys all data,
+ * including the audit trail, so it is only used to reset a demo deployment.
+ */
+export async function resetDatabase(): Promise<void> {
+  const client = await getClient();
+  await client.executeMultiple(ALL_TABLES.map((t) => `DROP TABLE IF EXISTS ${t};`).join('\n'));
+  await client.executeMultiple(BOOTSTRAP_SQL);
 }
 
 export { schema };

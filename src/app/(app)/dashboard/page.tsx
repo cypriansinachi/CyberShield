@@ -28,6 +28,7 @@ import { can, ROLES } from '@/lib/rbac';
 import { CATEGORIES } from '@/lib/risk';
 import { slaStatus } from '@/lib/workflow';
 import { formatDateTime, formatHours, formatPercent, isPast, timeAgo } from '@/lib/format';
+import { ORG_NAME } from '@/lib/constants';
 
 export const metadata: Metadata = { title: 'Dashboard' };
 
@@ -46,7 +47,7 @@ export default async function DashboardPage({ searchParams }: PageProps<'/dashbo
       <PageHeader
         eyebrow={ROLES[user.role].label}
         title="Security dashboard"
-        description="Live view of incident volume, risk and response performance across the organisation."
+        description={`Live view of incident volume, risk and response performance across ${ORG_NAME}.`}
         actions={
           <>
             <Link href="/incidents?status=open&sort=severity" className={buttonClass({ variant: 'secondary', size: 'sm' })}>
@@ -230,7 +231,7 @@ async function ReporterHome({ userId, name, welcome }: { userId: number; name: s
   const s = await reporterSummary(userId);
   return (
     <>
-      <PageHeader title={`Welcome, ${name.split(' ')[0]}`} description="Thank you for helping keep our organisation secure." />
+      <PageHeader title={`Welcome, ${name.split(' ')[0]}`} description={`Thank you for helping keep ${ORG_NAME} and its customers safe.`} />
       {welcome && (
         <Alert tone="success" title="Your account is ready" className="mb-6">
           You can now report security incidents and follow their progress here.
@@ -243,7 +244,7 @@ async function ReporterHome({ userId, name, welcome }: { userId: number; name: s
             <FileWarning className="size-7 opacity-90" aria-hidden />
             <h2 className="mt-3 text-xl font-semibold">Seen something suspicious?</h2>
             <p className="mt-1 max-w-lg text-sm text-blue-100">
-              Report it now, even if you are not sure. Early reports stop small problems from becoming serious breaches. It takes about two minutes.
+              Tell our security team now, even if you are not sure. Early reports stop small problems from becoming serious breaches. It takes about two minutes.
             </p>
             <Link href="/incidents/new" className={buttonClass({ variant: 'secondary', className: 'mt-5 border-white/20 bg-white text-blue-700 hover:bg-blue-50' })}>
               <PlusCircle aria-hidden /> Report an incident
@@ -266,13 +267,13 @@ async function ReporterHome({ userId, name, welcome }: { userId: number; name: s
         <Card>
           <CardHeader title="What should I report?" />
           <CardBody className="space-y-2 text-sm text-muted-foreground">
-            <p>• Suspicious emails, links, attachments or phone calls</p>
-            <p>• A lost or stolen laptop, phone or USB drive</p>
-            <p>• Passwords you may have entered on a fake page</p>
-            <p>• Unusual pop-ups, ransom notes or files you can&apos;t open</p>
-            <p>• Personal data sent to the wrong person</p>
+            <p>• Emails, texts or calls claiming to be {ORG_NAME} that look wrong</p>
+            <p>• A fake {ORG_NAME} website or app asking for your details</p>
+            <p>• Sign-ins, payments or changes on your account that you didn&apos;t make</p>
+            <p>• Someone else&apos;s information showing in your account</p>
+            <p>• A security weakness or bug in our website or app</p>
             <p className="pt-2 text-xs">
-              <strong className="text-foreground">Don&apos;t</strong> forward suspicious emails to colleagues, pay ransoms, or try to investigate yourself.
+              <strong className="text-foreground">We will never</strong> ask for your password or one-time codes. Don&apos;t reply to suspicious messages or try to investigate yourself.
             </p>
           </CardBody>
         </Card>

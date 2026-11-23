@@ -37,7 +37,7 @@ export const CATEGORIES = {
 export type Category = keyof typeof CATEGORIES;
 export const CATEGORY_KEYS = Object.keys(CATEGORIES) as Category[];
 
-/** Plain-language CIA questions so non-technical staff can answer them. */
+/** Plain-language CIA questions so non-technical customers can answer them. */
 export const IMPACT_DIMENSIONS = {
   confidentiality: {
     label: 'Confidentiality',

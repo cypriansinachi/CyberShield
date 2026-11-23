@@ -9,7 +9,6 @@ import { getCurrentUser } from '../auth/dal';
 import { recordAudit } from '../audit';
 import { email, fail, formValues, invalid, safeNext, text } from './form';
 import type { ActionState } from '@/lib/action-state';
-import { DEPARTMENTS } from '@/lib/constants';
 
 const GENERIC_LOGIN_ERROR = 'Invalid email or password.';
 
@@ -67,12 +66,11 @@ export async function registerAction(_prev: ActionState, fd: FormData): Promise<
     .object({
       fullName: text('Full name', 2, 100),
       email: email(),
-      department: z.enum(DEPARTMENTS, { error: 'Select your department.' }),
       password: z.string().max(128, 'Use at most 128 characters.'),
       confirmPassword: z.string(),
     })
     .refine((v) => v.password === v.confirmPassword, { path: ['confirmPassword'], message: 'Passwords do not match.' });
-  const keep = { fullName: values.fullName, email: values.email, department: values.department };
+  const keep = { fullName: values.fullName, email: values.email };
   const parsed = schema.safeParse(values);
   if (!parsed.success) return invalid(parsed.error, keep);
 

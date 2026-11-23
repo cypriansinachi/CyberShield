@@ -4,7 +4,6 @@ import { requireUser } from '@/server/auth/dal';
 import { unreadCount } from '@/server/services/notifications';
 import { logoutAction } from '@/server/actions/auth';
 import { can, ROLES } from '@/lib/rbac';
-import { ORG_NAME } from '@/lib/constants';
 
 export default async function AppLayout({ children }: LayoutProps<'/'>) {
   // Each page re-checks access itself; the layout only needs the user for the chrome.
@@ -45,8 +44,6 @@ export default async function AppLayout({ children }: LayoutProps<'/'>) {
       user={{ fullName: user.fullName, email: user.email, roleLabel: ROLES[user.role].label }}
       unread={await unreadCount(user.id)}
       theme={theme}
-      orgName={ORG_NAME}
-      canSearch={staff}
       canReport={can(user, 'incident.create')}
       logoutAction={logoutAction}
     >

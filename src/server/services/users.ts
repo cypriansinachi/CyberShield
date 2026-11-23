@@ -58,7 +58,7 @@ export async function recentAuditForUser(userId: number, limit = 15) {
 }
 
 export async function adminCreateUser(
-  input: { fullName: string; email: string; department: string; role: Role },
+  input: { fullName: string; email: string; department: string | null; role: Role },
   ctx: AuditContext,
 ): Promise<{ ok: true; user: SafeUser; tempPassword: string } | { ok: false; error: string; field?: string }> {
   const email = input.email.trim().toLowerCase();
@@ -86,7 +86,7 @@ export async function adminCreateUser(
 
 export async function adminUpdateUser(
   id: number,
-  patch: { role: Role; department: string; isActive: boolean },
+  patch: { role: Role; department: string | null; isActive: boolean },
   ctx: AuditContext,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const user = await findUserById(id);

@@ -112,7 +112,8 @@ export async function verifyMfaChallenge(user: User, code: string, meta: Request
   return true;
 }
 
-export type RegisterInput = { fullName: string; email: string; department: string; password: string };
+/** Self-registration creates a customer account; team accounts are created by an administrator. */
+export type RegisterInput = { fullName: string; email: string; password: string };
 
 export async function registerUser(input: RegisterInput, meta: RequestMeta): Promise<{ ok: true; user: User } | { ok: false; error: string; field?: string }> {
   const ctx: AuditContext = { ...meta };
@@ -128,7 +129,7 @@ export async function registerUser(input: RegisterInput, meta: RequestMeta): Pro
   const domain = email.split('@')[1] ?? '';
   const allowed = config.security.allowedEmailDomains;
   if (allowed.length && !allowed.includes(domain)) {
-    return { ok: false, field: 'email', error: `Use your organisation email address (${allowed.map((d) => `@${d}`).join(', ')}).` };
+    return { ok: false, field: 'email', error: `Registration is limited to ${allowed.map((d) => `@${d}`).join(', ')} email addresses.` };
   }
   const pwErrors = checkPassword(input.password, { email, fullName: input.fullName });
   if (pwErrors.length) return { ok: false, field: 'password', error: pwErrors.join(' ') };
@@ -140,7 +141,6 @@ export async function registerUser(input: RegisterInput, meta: RequestMeta): Pro
     .values({
       fullName: input.fullName,
       email,
-      department: input.department,
       role: 'reporter',
       passwordHash: await hashPassword(input.password),
       passwordChangedAt: ts,

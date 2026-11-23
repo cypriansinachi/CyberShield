@@ -7,6 +7,7 @@ import { requireUser } from '@/server/auth/dal';
 import { listActiveSessions } from '@/server/auth/session';
 import { ROLES } from '@/lib/rbac';
 import { formatDateTime, timeAgo } from '@/lib/format';
+import { ORG_NAME } from '@/lib/constants';
 
 export const metadata: Metadata = { title: 'Account & security' };
 
@@ -33,7 +34,7 @@ export default async function AccountPage({ searchParams }: PageProps<'/account'
       )}
       {sp.required === 'mfa' && !user.mfaEnabled && (
         <Alert tone="warning" title="Two-step verification is required for your role" className="mb-6">
-          Your organisation requires multi-factor authentication for privileged accounts. Set it up below to continue.
+          {ORG_NAME} requires two-step verification for security-team accounts. Set it up below to continue.
         </Alert>
       )}
 
@@ -83,7 +84,7 @@ export default async function AccountPage({ searchParams }: PageProps<'/account'
                 { label: 'Name', value: user.fullName },
                 { label: 'Email', value: user.email },
                 { label: 'Role', value: ROLES[user.role].label },
-                { label: 'Department', value: user.department ?? '—' },
+                ...(user.department ? [{ label: 'Department', value: user.department }] : []),
               ]}
             />
             <p className="mt-3 text-xs text-muted-foreground">{ROLES[user.role].description} Contact an administrator to change your role.</p>

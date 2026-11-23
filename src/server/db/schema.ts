@@ -51,7 +51,7 @@ export const incidents = sqliteTable('incidents', {
   status: text('status').$type<Status>().notNull().default('new'),
   reporterId: integer('reporter_id').notNull(),
   assigneeId: integer('assignee_id'),
-  department: text('department'),
+  affectedService: text('affected_service'),
   affectedAssets: text('affected_assets'),
   detectedAt: text('detected_at').notNull(),
 

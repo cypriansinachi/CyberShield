@@ -28,7 +28,7 @@ const FRAMEWORKS = [
       ['A.5.26 Response to incidents', 'Enforced workflow, assignment and response checklists.'],
       ['A.5.27 Learning from incidents', 'Lessons learned mandatory for High and Critical incidents.'],
       ['A.5.28 Collection of evidence', 'Encrypted evidence with SHA-256 chain-of-custody and access logging.'],
-      ['A.6.8 Event reporting', 'Self-service reporting for every member of staff.'],
+      ['A.6.8 Event reporting', 'Self-service reporting for every customer, plus internal reporting by the security team.'],
       ['A.8.5 Secure authentication', 'scrypt hashing, lockout, TOTP MFA, session timeouts.'],
       ['A.8.15 Logging', 'Append-only, HMAC hash-chained audit trail with integrity verification.'],
     ],

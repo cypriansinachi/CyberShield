@@ -125,17 +125,17 @@ export default async function ReportsPage({ searchParams }: PageProps<'/reports'
             </Card>
             <div className="space-y-6">
               <Card>
-                <CardHeader title="By department" />
+                <CardHeader title="By affected service" />
                 <Table>
                   <thead>
                     <tr>
-                      <th>Department</th>
+                      <th>Service</th>
                       <th className="text-right">Total</th>
                       <th className="text-right">Major</th>
                     </tr>
                   </thead>
                   <tbody className="tabular-nums">
-                    {r.departments.map((d) => (
+                    {r.services.map((d) => (
                       <tr key={d.name}>
                         <td>{d.name}</td>
                         <td className="text-right">{d.total}</td>
@@ -171,7 +171,7 @@ export default async function ReportsPage({ searchParams }: PageProps<'/reports'
                 { key: 'category', header: 'Category', sortable: true, minScreen: 'lg' },
                 { key: 'severity', header: 'Severity', sortable: true, descFirst: true },
                 { key: 'status', header: 'Status', sortable: true },
-                { key: 'department', header: 'Department', sortable: true, defaultHidden: true },
+                { key: 'service', header: 'Service', sortable: true, defaultHidden: true },
                 { key: 'reported', header: 'Reported', sortable: true, descFirst: true, minScreen: 'sm' },
                 { key: 'assignee', header: 'Assignee', sortable: true, minScreen: 'md' },
               ]}
@@ -184,7 +184,7 @@ export default async function ReportsPage({ searchParams }: PageProps<'/reports'
                   category: CATEGORIES[row.category]?.label,
                   severity: SEVERITIES[row.severity].rank,
                   status: row.status,
-                  department: row.department,
+                  service: row.affected_service,
                   reported: row.created_at,
                   assignee: row.assignee,
                 },
@@ -198,7 +198,7 @@ export default async function ReportsPage({ searchParams }: PageProps<'/reports'
                   category: <span className="text-xs">{CATEGORIES[row.category]?.label}</span>,
                   severity: <SeverityBadge severity={row.severity} />,
                   status: <StatusBadge status={row.status} />,
-                  department: <span className="text-xs">{row.department ?? '—'}</span>,
+                  service: <span className="text-xs">{row.affected_service ?? '—'}</span>,
                   reported: <span className="whitespace-nowrap text-xs text-muted-foreground">{formatDate(row.created_at)}</span>,
                   assignee: <span className="text-xs">{row.assignee ?? '—'}</span>,
                 },

@@ -22,7 +22,7 @@ import {
   type Classification,
   type ImpactDimension,
 } from '@/lib/risk';
-import { DEPARTMENTS, EVIDENCE_EXTENSIONS, MAX_EVIDENCE_FILES, MAX_EVIDENCE_MB } from '@/lib/constants';
+import { EVIDENCE_EXTENSIONS, MAX_EVIDENCE_FILES, MAX_EVIDENCE_MB, ORG_NAME, SERVICES } from '@/lib/constants';
 import { formatBytes } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
@@ -46,7 +46,7 @@ function minutes(m: number) {
   return m >= 60 ? hours(m / 60) : `${m} minutes`;
 }
 
-export function ReportForm({ defaultDetectedAt, defaultDepartment, regulator }: { defaultDetectedAt: string; defaultDepartment: string; regulator: string }) {
+export function ReportForm({ defaultDetectedAt, regulator }: { defaultDetectedAt: string; regulator: string }) {
   const [state, formAction, pending] = useActionState(createIncidentAction, idleState);
   const [risk, setRisk] = useState<Classification | null>(null);
   const [files, setFiles] = useState<File[]>([]);
@@ -66,7 +66,7 @@ export function ReportForm({ defaultDetectedAt, defaultDepartment, regulator }: 
           <Card>
             <CardHeader title="1. What happened?" description="Describe the incident in your own words. Technical detail is welcome but not required." />
             <CardBody className="space-y-5">
-              <Field label="Short title" name="title" hint="For example: “Email asking me to verify my payroll login”">
+              <Field label="Short title" name="title" hint={`For example: “Email saying my ${ORG_NAME} account will be suspended”`}>
                 <Input name="title" maxLength={150} required />
               </Field>
 
@@ -88,12 +88,12 @@ export function ReportForm({ defaultDetectedAt, defaultDepartment, regulator }: 
                 <Field label="When was it discovered?" name="detectedAt">
                   <Input name="detectedAt" type="datetime-local" defaultValue={defaultDetectedAt} max={defaultDetectedAt} required />
                 </Field>
-                <Field label="Affected department" name="department">
-                  <Select name="department" defaultValue={defaultDepartment || ''} required>
+                <Field label="Where did you notice it?" name="affectedService">
+                  <Select name="affectedService" defaultValue="" required>
                     <option value="" disabled>
-                      Select a department
+                      Select a {ORG_NAME} service
                     </option>
-                    {DEPARTMENTS.map((d) => (
+                    {SERVICES.map((d) => (
                       <option key={d} value={d}>
                         {d}
                       </option>
@@ -102,7 +102,7 @@ export function ReportForm({ defaultDetectedAt, defaultDepartment, regulator }: 
                 </Field>
               </div>
 
-              <Field label="Affected systems, devices or accounts" name="affectedAssets" optional hint="e.g. laptop FIN-LT-023, payroll portal, my Outlook mailbox">
+              <Field label="Affected accounts, pages or devices" name="affectedAssets" optional hint={`e.g. my ${ORG_NAME} account, the checkout page, the sender address of a suspicious email`}>
                 <Input name="affectedAssets" maxLength={500} />
               </Field>
             </CardBody>
@@ -201,8 +201,8 @@ export function ReportForm({ defaultDetectedAt, defaultDepartment, regulator }: 
               <label className="flex items-start gap-3 text-sm">
                 <input type="checkbox" name="declaration" className="mt-0.5 size-4 accent-[var(--primary)]" />
                 <span>
-                  I confirm this report is accurate to the best of my knowledge. I understand it will be shared with the security team and handled under the
-                  organisation&apos;s data protection policy.
+                  I confirm this report is accurate to the best of my knowledge. I understand it will be shared with the {ORG_NAME} security team and handled under
+                  {ORG_NAME}&apos;s privacy and data protection policy.
                 </span>
               </label>
               <FieldErrorText name="declaration" state={state} />
@@ -222,8 +222,8 @@ export function ReportForm({ defaultDetectedAt, defaultDepartment, regulator }: 
             <CardBody className="flex gap-3 text-xs text-muted-foreground">
               <Info className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
               <p>
-                If you think a device is infected, <strong className="text-foreground">disconnect it from the network</strong> but do not switch it off. Keep the suspicious
-                email; do not forward it to colleagues.
+                Keep any suspicious email or text message; it helps us trace the sender. <strong className="text-foreground">Never share your password or one-time codes</strong>,
+                even with someone who says they work for {ORG_NAME}.
               </p>
             </CardBody>
           </Card>
@@ -287,7 +287,7 @@ function RiskPreview({ risk, regulator }: { risk: Classification | null; regulat
               <div className="flex gap-2 rounded-lg bg-warning-soft p-3 text-xs">
                 <AlertTriangle className="size-4 shrink-0 text-warning-ink" aria-hidden />
                 <p>
-                  <strong>Possible personal-data breach.</strong> The organisation may have to notify the {regulator} within 72 hours. Please submit as soon as possible.
+                  <strong>Possible personal-data breach.</strong> {ORG_NAME} may have to notify the {regulator} within 72 hours. Please submit as soon as possible.
                 </p>
               </div>
             )}

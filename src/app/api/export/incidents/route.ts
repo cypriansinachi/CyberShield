@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
       { header: 'Severity', value: (r) => SEVERITIES[r.severity].label },
       { header: 'Risk score', value: (r) => r.risk_score },
       { header: 'Status', value: (r) => STATUSES[r.status].label },
-      { header: 'Department', value: (r) => r.department },
+      { header: 'Affected service', value: (r) => r.affected_service },
       { header: 'Reporter', value: (r) => r.reporter },
       { header: 'Assignee', value: (r) => r.assignee },
       { header: 'Reported (UTC)', value: (r) => r.created_at },

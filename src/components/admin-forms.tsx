@@ -87,11 +87,9 @@ function CreateUserFormInner({ onAnother }: { onAnother: () => void }) {
             <Field label="Email address" name="email">
               <Input name="email" type="email" />
             </Field>
-            <Field label="Department" name="department">
+            <Field label="Department" name="department" hint="Team members only. Leave as None for a customer.">
               <Select name="department" defaultValue="">
-                <option value="" disabled>
-                  Select…
-                </option>
+                <option value="">None (customer)</option>
                 {DEPARTMENTS.map((d) => (
                   <option key={d}>{d}</option>
                 ))}
@@ -131,7 +129,8 @@ export function UpdateUserForm({ user, isSelf }: { user: { id: number; role: Rol
           {isSelf && <input type="hidden" name="role" value={user.role} />}
         </Field>
         <Field label="Department" name="department">
-          <Select name="department" defaultValue={user.department ?? 'Other'}>
+          <Select name="department" defaultValue={user.department ?? ''}>
+            <option value="">None (customer)</option>
             {DEPARTMENTS.map((d) => (
               <option key={d}>{d}</option>
             ))}

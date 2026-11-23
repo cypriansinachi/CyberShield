@@ -260,7 +260,7 @@ export type NewIncidentInput = {
   category: RiskInput['category'];
   description: string;
   detectedAt: string;
-  department: string;
+  affectedService: string;
   affectedAssets: string;
   confidentiality: number;
   integrity: number;
@@ -290,7 +290,7 @@ export async function createIncident(user: Viewer, input: NewIncidentInput, evid
           description: input.description,
           status: 'new',
           reporterId: user.id,
-          department: input.department || null,
+          affectedService: input.affectedService || null,
           affectedAssets: input.affectedAssets || null,
           detectedAt: input.detectedAt,
           impactConfidentiality: cls.input.confidentiality,

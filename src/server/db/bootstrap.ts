@@ -4,6 +4,12 @@
  * All timestamps are ISO-8601 UTC strings.
  */
 
+/** Every table, children before parents (the order in which they can be dropped). */
+export const ALL_TABLES = [
+  'evidence_blobs', 'attachments', 'incident_tasks', 'incident_events', 'notifications',
+  'incidents', 'sessions', 'rate_limits', 'audit_logs', 'users',
+] as const;
+
 export const BOOTSTRAP_SQL = /* sql */ `
 CREATE TABLE IF NOT EXISTS users (
   id                   INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -50,7 +56,7 @@ CREATE TABLE IF NOT EXISTS incidents (
                                              'eradicated', 'recovered', 'closed', 'rejected')),
   reporter_id            INTEGER NOT NULL REFERENCES users(id),
   assignee_id            INTEGER REFERENCES users(id),
-  department             TEXT,
+  affected_service       TEXT,
   affected_assets        TEXT,
   detected_at            TEXT    NOT NULL,
 

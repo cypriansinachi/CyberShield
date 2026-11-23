@@ -1,6 +1,8 @@
-# CIRP: Cybersecurity Incident Reporting & Response Platform
+# CyberShield: Cybersecurity Incident Reporting & Response Platform
 
-A secure web platform that gives an organisation one structured place to **report, classify, respond to, monitor and audit** cybersecurity incidents. Staff report suspected incidents in plain language. The platform scores the risk automatically, routes each incident through a NIST-style response workflow with playbooks and SLAs, and keeps a tamper-evident audit trail and breach-notification records for compliance.
+**CyberShield** is the incident reporting and response platform of **Nexora**, a fictional consumer platform (accounts, payments, a mobile app and a partner API), in the way a large technology company runs its own security reporting service. It gives Nexora one structured place to **report, classify, respond to, monitor and audit** cybersecurity incidents. Nexora's customers report the security problems they notice (fake Nexora emails, account takeovers, bugs, someone else's data on their screen) in plain language, and Nexora's security team can log incidents it finds itself.
+
+The organisation name is a single constant (`ORG_NAME` in [src/lib/constants.ts](src/lib/constants.ts)), so the platform can be rebranded for any organisation. The platform scores the risk automatically, routes each incident through a NIST-style response workflow with playbooks and SLAs, and keeps a tamper-evident audit trail and breach-notification records for compliance.
 
 ![Security dashboard](docs/screenshots/dashboard.png)
 
@@ -30,12 +32,12 @@ Further reading: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) (diagrams, data mo
 
 | Project objective | What the platform does |
 |---|---|
-| **Incident reporting** | Guided report form for any member of staff: category cards with plain-language hints, CIA impact questions, data types, scope, evidence upload. A **live risk preview** shows the likely severity as the reporter answers. Reporters follow progress and message the security team on their own reports. |
+| **Incident reporting** | Guided report form for any customer (and for the security team): category cards with plain-language hints, the affected Nexora service, CIA impact questions, data types, scope, evidence upload. A **live risk preview** shows the likely severity as the reporter answers. Reporters follow progress and message the security team on their own reports. |
 | **Risk classification** | Explainable 0–100 risk score from five weighted factors (threat category, CIA impact, data sensitivity, scope, still active), mapped to Low/Medium/High/Critical and P1–P4. **Escalation rules** guarantee floors (e.g. active ransomware is always Critical). Analysts can re-assess; managers can override with a recorded justification. |
 | **Response workflow** | Server-enforced state machine following NIST SP 800-61: *New → Triaged → Investigating → Contained → Eradicated → Recovered → Closed* (or *Rejected*). Category-specific **playbook checklists**, assignment, internal notes versus reporter-visible replies, closure gates (root cause, lessons learned, open tasks, regulator notification) and **four-eyes sign-off** for major incidents. |
 | **Security dashboards** | KPIs (open, critical/high, SLA overdue, unassigned, MTTA, MTTR, SLA compliance), 30-day trend, severity split, response pipeline, category breakdown, team workload, priority queue and pending breach notifications. |
 | **SLA management** | Acknowledge and resolve targets per priority, live SLA indicators, and **automatic escalation** of breaches to managers (background job). |
-| **Reports** | Date-range management reports (category × severity matrix, departments, SLA performance), CSV export and a printable / PDF incident report. |
+| **Reports** | Date-range management reports (category × severity matrix, affected services, SLA performance), CSV export and a printable / PDF incident report. |
 | **Secure architecture** | Server-side sessions, scrypt passwords, account lockout, rate limiting, TOTP MFA, RBAC with object-level checks, strict nonce-based CSP, encrypted evidence and more (see [Security architecture](#security-architecture)). |
 | **Auditability** | Append-only audit log sealed with an **HMAC-SHA256 hash chain**, one-click and command-line integrity verification, per-incident audit trail, CSV export. |
 | **Compliance** | Personal-data breach detection with **72-hour regulator deadline** (NDPA 2023 s.40 / GDPR Art. 33), breach register, compliance dashboard and control mapping to NIST SP 800-61, ISO/IEC 27001:2022 Annex A, NDPA/GDPR and NIST CSF 2.0. |
@@ -62,7 +64,7 @@ Requirements: **Node.js 20.12+** (22 LTS recommended) and npm.
 ```bash
 npm install
 npm run setup      # creates .env.local with strong random secrets
-npm run db:seed    # optional: demo users + ~45 realistic incidents
+npm run db:seed    # optional: demo accounts + ~45 realistic incidents
 npm run dev        # http://localhost:3000
 ```
 
@@ -72,19 +74,23 @@ npm run dev        # http://localhost:3000
 
 All demo accounts use the password **`Demo@Passw0rd!`** (they are listed on the sign-in page while `SHOW_DEMO_ACCOUNTS=true`).
 
+Nexora's team uses `@nexora.local` addresses; customers use `@example.com` (a domain reserved for examples).
+
 | Email | Role | Try this |
 |---|---|---|
-| `staff@cirp.local` | Reporter | Report an incident, watch the live risk preview, follow your reports |
-| `analyst@cirp.local` | Security Analyst | Triage, assign to yourself, work the playbook, move through the workflow |
-| `manager@cirp.local` | Security Manager | Assign, override severity, close Critical incidents, reports |
-| `auditor@cirp.local` | Compliance Auditor | Read-only: incidents, compliance, audit log, exports |
-| `admin@cirp.local` | System Administrator | Users and roles, unlock `ngozi.uche@cirp.local` (locked by a simulated brute-force attack) |
+| `customer@example.com` | Customer | Report an incident, watch the live risk preview, follow and message about your reports |
+| `analyst@nexora.local` | Security Analyst | Triage, assign to yourself, work the playbook, move through the workflow |
+| `manager@nexora.local` | Security Manager | Assign, override severity, close Critical incidents, reports |
+| `auditor@nexora.local` | Compliance Auditor | Read-only: incidents, compliance, audit log, exports |
+| `admin@nexora.local` | System Administrator | Users and roles, unlock `ngozi.uche@example.com` (locked by a simulated brute-force attack) |
+
+More accounts with the same password: `ibrahim.musa@nexora.local` (second analyst) and customers `grace.okafor@example.com`, `yusuf.bello@example.com`, `daniel.adebayo@example.com`. New sign-ups are customers.
 
 ## Roles and permissions
 
-Least privilege: permissions belong to roles ([src/lib/rbac.ts](src/lib/rbac.ts)), and object-level checks stop a reporter from seeing anyone else's report even by guessing URLs.
+Least privilege: permissions belong to roles ([src/lib/rbac.ts](src/lib/rbac.ts)), and object-level checks stop a customer from seeing anyone else's report even by guessing URLs. (The customer role is stored as `reporter` in the database.)
 
-| Capability | Reporter | Analyst | Manager | Admin | Auditor |
+| Capability | Customer | Analyst | Manager | Admin | Auditor |
 |---|:-:|:-:|:-:|:-:|:-:|
 | Report incidents, follow own reports | ✔ | ✔ | ✔ | ✔ | |
 | View all incidents and dashboard | | ✔ | ✔ | ✔ | ✔ (read-only) |
@@ -96,9 +102,9 @@ Least privilege: permissions belong to roles ([src/lib/rbac.ts](src/lib/rbac.ts)
 
 ## How it works
 
-1. **Report.** A reporter submits the form. The server validates it, classifies the risk, sets SLA deadlines, generates the playbook, encrypts the evidence, records an audit entry and notifies responders. Reports involving personal data get a 72-hour regulator deadline.
+1. **Report.** A customer (or a team member) submits the form. The server validates it, classifies the risk, sets SLA deadlines, generates the playbook, encrypts the evidence, records an audit entry and notifies responders. Reports involving personal data get a 72-hour regulator deadline.
 2. **Triage.** An analyst acknowledges the incident (acknowledge SLA), confirms or re-assesses the risk, and assigns it.
-3. **Respond.** The incident moves through containment, eradication and recovery while the playbook tasks are ticked off. Internal notes stay with the team; replies go to the reporter.
+3. **Respond.** The incident moves through containment, eradication and recovery while the playbook tasks are ticked off. Internal notes stay with the team; replies go to the customer who reported it.
 4. **Close.** Closure requires a resolution summary and root cause, no open tasks, and the regulator notification (if notifiable). High and Critical incidents also need lessons learned and **manager** sign-off.
 5. **Oversee.** Dashboards, reports and the compliance overview update live. Overdue SLAs are escalated automatically, and the audit trail can be verified at any time.
 
@@ -159,12 +165,13 @@ Vercel runs the app as serverless functions with a read-only disk, so the databa
    npm run setup:production   # writes .env.vercel (git-ignored)
    ```
    Paste the Turso URL and token from step 1 into `.env.vercel`.
-3. **Add the variables to Vercel.** **Settings → Environment Variables → Import .env**, and choose `.env.vercel` (or paste its contents). It contains `SESSION_SECRET`, `DATA_ENCRYPTION_KEY`, `AUDIT_HMAC_KEY`, `CRON_SECRET`, `SHOW_DEMO_ACCOUNTS` and the organisation settings.
-4. **Load the demo data** into Turso (optional):
+3. **Add the variables to Vercel.** **Settings → Environment Variables → Import .env**, and choose `.env.vercel` (or paste its contents). It contains `SESSION_SECRET`, `DATA_ENCRYPTION_KEY`, `AUDIT_HMAC_KEY`, `CRON_SECRET`, `SHOW_DEMO_ACCOUNTS` and the display timezone.
+4. **Load the demo data** (optional). The simplest way is to ask the deployment to do it, so the data is sealed with its own keys and written to its own database:
    ```bash
-   npm run db:seed:remote     # uses .env.vercel; npm run db:reset:remote wipes and re-seeds
+   curl -X POST -H "Authorization: Bearer $CRON_SECRET" https://<your-site>/api/setup/demo-data
+   # add ?reset=all-data to wipe everything (accounts, incidents, audit log) and rebuild the demo
    ```
-   This must use the same `AUDIT_HMAC_KEY` and `DATA_ENCRYPTION_KEY` as Vercel, which is why it reads `.env.vercel`.
+   It only works while `SHOW_DEMO_ACCOUNTS=true`. Alternatively `npm run db:seed:remote` seeds from your machine using `.env.vercel`, which must then hold the same database and the same `AUDIT_HMAC_KEY` / `DATA_ENCRYPTION_KEY` as Vercel.
 5. **Redeploy** (Deployments → ⋯ → Redeploy). The schema is created automatically on first request; `vercel.json` registers the daily SLA cron job.
 
 Check the deployment at `/api/health` (should return `{"status":"ok"}`), and verify the hosted audit trail at any time with `npm run audit:verify:remote`.
@@ -228,4 +235,3 @@ docs/                         architecture, security, screenshots
 - No direct SIEM/EDR ingestion: incidents are reported by people, not raised automatically from security tooling.
 - No automated prevention or detection of attacks; the platform supports their reporting and management (in line with the project scope).
 - SSO (SAML/OIDC) and recovery codes for MFA are not included.
-# CyberShield

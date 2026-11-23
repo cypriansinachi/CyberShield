@@ -48,7 +48,7 @@
     "typescript": "^5",
     "vitest": "^5.1.0"
   },
-  "description": "Cybersecurity Incident Reporting and Response Platform (CIRP): incident reporting, risk classification, response workflow, security dashboards, tamper-evident audit trail and compliance tracking.",
+  "description": "CyberShield, Nexora's cybersecurity incident reporting and response platform: customer incident reporting, risk classification, response workflow, security dashboards, tamper-evident audit trail and compliance tracking.",
   "engines": {
     "node": ">=20.12"
   }

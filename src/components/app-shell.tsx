@@ -12,7 +12,6 @@ import {
   Menu,
   PlusCircle,
   ScrollText,
-  Search,
   ShieldCheck,
   UserCog,
   Users,
@@ -21,6 +20,7 @@ import {
 import { buttonClass } from './ui/button';
 import { Logo } from './logo';
 import { ThemeSelect, ThemeToggle, type ThemeChoice } from './theme-toggle';
+import { APP_NAME, APP_TAGLINE } from '@/lib/constants';
 import { cn, initials } from '@/lib/utils';
 
 const ICONS = {
@@ -53,15 +53,15 @@ function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-function SidebarContent({ nav, orgName, onNavigate }: { nav: NavSection[]; orgName: string; onNavigate?: () => void }) {
+function SidebarContent({ nav, onNavigate }: { nav: NavSection[]; onNavigate?: () => void }) {
   const pathname = usePathname();
   return (
     <div className="flex h-full flex-col">
       <div className="flex h-16 items-center gap-3 border-b border-sidebar-border px-5">
         <Logo />
         <div className="min-w-0">
-          <p className="text-sm font-semibold tracking-tight text-white">CIRP</p>
-          <p className="truncate text-[11px] text-sidebar-muted">{orgName}</p>
+          <p className="text-sm font-semibold tracking-tight text-white">{APP_NAME}</p>
+          <p className="truncate text-[11px] text-sidebar-muted">{APP_TAGLINE}</p>
         </div>
       </div>
       <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-5" aria-label="Main">
@@ -137,8 +137,6 @@ export function AppShell({
   user,
   unread,
   theme,
-  orgName,
-  canSearch,
   canReport,
   logoutAction,
   children,
@@ -147,8 +145,6 @@ export function AppShell({
   user: { fullName: string; email: string; roleLabel: string };
   unread: number;
   theme: ThemeChoice;
-  orgName: string;
-  canSearch: boolean;
   canReport: boolean;
   logoutAction: () => Promise<void>;
   children: ReactNode;
@@ -160,7 +156,7 @@ export function AppShell({
     <div className="min-h-screen">
       {/* Desktop sidebar */}
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 bg-sidebar lg:block">
-        <SidebarContent nav={nav} orgName={orgName} />
+        <SidebarContent nav={nav} />
       </aside>
 
       {/* Mobile drawer */}
@@ -171,7 +167,7 @@ export function AppShell({
             <button className="absolute right-3 top-4 rounded-md p-1.5 text-sidebar-foreground hover:bg-sidebar-accent" onClick={() => setOpen(false)} aria-label="Close menu">
               <X className="size-5" />
             </button>
-            <SidebarContent nav={nav} orgName={orgName} onNavigate={() => setOpen(false)} />
+            <SidebarContent nav={nav} onNavigate={() => setOpen(false)} />
           </aside>
         </div>
       )}
@@ -182,20 +178,6 @@ export function AppShell({
             <Menu aria-hidden />
           </button>
 
-          {canSearch ? (
-            <form action="/incidents" method="get" className="relative hidden max-w-md flex-1 sm:block" role="search">
-              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
-              <input
-                type="search"
-                name="q"
-                placeholder="Search incidents by reference, title or details…"
-                aria-label="Search incidents"
-                className="h-9 w-full rounded-lg border border-input bg-background pl-9 pr-3 text-sm placeholder:text-muted-foreground/70 focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/40"
-              />
-            </form>
-          ) : (
-            <div className="flex-1" />
-          )}
           <div className="ml-auto flex items-center gap-1.5">
             {canReport && (
               <Link href="/incidents/new" className={buttonClass({ size: 'sm', className: 'hidden sm:inline-flex' })}>

@@ -4,7 +4,7 @@
 
 | Asset | Why it matters |
 |---|---|
-| Incident records | May describe vulnerabilities, attacks in progress and personal data of staff/customers |
+| Incident records | May describe vulnerabilities, attacks in progress and personal data of customers and staff |
 | Evidence files | Screenshots, emails and logs; may contain personal data or malware indicators |
 | Audit trail | The basis of accountability and of regulatory and forensic investigations |
 | User accounts and sessions | Control access to all of the above |
@@ -23,7 +23,7 @@
 
 ## 3. OWASP Top 10 (2021) mapping
 
-| OWASP risk | Controls in CIRP | Code |
+| OWASP risk | Controls in CyberShield | Code |
 |---|---|---|
 | A01 Broken Access Control | RBAC + object-level checks, deny-by-default, audited denials, 403/404 pages | `src/lib/rbac.ts`, `src/server/auth/dal.ts`, `src/server/services/incidents.ts` |
 | A02 Cryptographic Failures | scrypt, AES-256-GCM, HMAC-SHA256, Secure cookies, HSTS | `src/server/security/crypto.ts` |

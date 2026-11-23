@@ -23,7 +23,7 @@ const report = {
   category: 'data_breach' as const,
   description: 'A spreadsheet of 500 customers was sent to the wrong address.',
   detectedAt: ts,
-  department: 'Finance',
+  affectedService: 'Website',
   affectedAssets: '',
   confidentiality: 2,
   integrity: 0,

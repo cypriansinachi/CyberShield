@@ -142,14 +142,14 @@ export async function getSecurityDashboard(now = Date.now()) {
 
 export type ReportRow = {
   id: number; reference: string; title: string; category: Category; severity: Severity; status: Status;
-  department: string | null; created_at: string; acknowledged_at: string | null; closed_at: string | null;
+  affected_service: string | null; created_at: string; acknowledged_at: string | null; closed_at: string | null;
   sla_ack_due_at: string; sla_resolve_due_at: string; risk_score: number; reporter: string; assignee: string | null;
   breach_notifiable: number; notified_at: string | null; notification_due_at: string | null; root_cause: string | null;
 };
 
 export async function getIncidentReport(fromIso: string, toIso: string) {
   const rows = await all<ReportRow>(
-    `SELECT i.id, i.reference, i.title, i.category, i.severity, i.status, i.department, i.created_at,
+    `SELECT i.id, i.reference, i.title, i.category, i.severity, i.status, i.affected_service, i.created_at,
             i.acknowledged_at, i.closed_at, i.sla_ack_due_at, i.sla_resolve_due_at, i.risk_score,
             i.breach_notifiable, i.notified_at, i.notification_due_at, i.root_cause,
             r.full_name reporter, a.full_name assignee
@@ -164,7 +164,7 @@ export async function getIncidentReport(fromIso: string, toIso: string) {
 
   const severityCounts = Object.fromEntries(SEVERITY_ORDER.map((s) => [s, 0])) as Record<Severity, number>;
   const matrix = new Map<Category, Record<Severity, number> & { total: number }>();
-  const departments = new Map<string, { total: number; major: number }>();
+  const services = new Map<string, { total: number; major: number }>();
   const statusCounts = new Map<Status, number>();
   let ackMet = 0, ackTotal = 0, resMet = 0, resTotal = 0, ackHours = 0, resHours = 0, breaches = 0, breachesOnTime = 0;
 
@@ -174,10 +174,11 @@ export async function getIncidentReport(fromIso: string, toIso: string) {
     m[r.severity]++;
     m.total++;
     matrix.set(r.category, m);
-    const dep = departments.get(r.department ?? 'Unspecified') ?? { total: 0, major: 0 };
-    dep.total++;
-    if (r.severity === 'high' || r.severity === 'critical') dep.major++;
-    departments.set(r.department ?? 'Unspecified', dep);
+    const service = r.affected_service ?? 'Unspecified';
+    const svc = services.get(service) ?? { total: 0, major: 0 };
+    svc.total++;
+    if (r.severity === 'high' || r.severity === 'critical') svc.major++;
+    services.set(service, svc);
     statusCounts.set(r.status, (statusCounts.get(r.status) ?? 0) + 1);
 
     if (r.acknowledged_at) {
@@ -214,7 +215,7 @@ export async function getIncidentReport(fromIso: string, toIso: string) {
     matrix: [...matrix.entries()]
       .map(([category, counts]) => ({ category, label: CATEGORIES[category]?.label ?? category, ...counts }))
       .sort((a, b) => b.total - a.total),
-    departments: [...departments.entries()].map(([name, v]) => ({ name, ...v })).sort((a, b) => b.total - a.total),
+    services: [...services.entries()].map(([name, v]) => ({ name, ...v })).sort((a, b) => b.total - a.total),
     statuses: [...statusCounts.entries()].map(([status, count]) => ({ status, label: STATUSES[status].label, count })),
   };
 }

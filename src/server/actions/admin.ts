@@ -17,6 +17,11 @@ async function adminUser() {
   return { user, ctx, allowed: can(user, 'user.manage') };
 }
 
+/** Team members belong to a department; customers have none (empty → null). */
+const optionalDepartment = z
+  .union([z.enum(DEPARTMENTS), z.literal('')], { error: 'Select a department.' })
+  .transform((v) => v || null);
+
 export async function createUserAction(_prev: ActionState, fd: FormData): Promise<ActionState> {
   const { user, ctx, allowed } = await adminUser();
   if (!allowed) return { status: 'error', message: (await deny(user, 'user.manage')).error };
@@ -25,7 +30,7 @@ export async function createUserAction(_prev: ActionState, fd: FormData): Promis
     .object({
       fullName: text('Full name', 2, 100),
       email: email(),
-      department: z.enum(DEPARTMENTS, { error: 'Select a department.' }),
+      department: optionalDepartment,
       role: z.enum(ROLE_KEYS, { error: 'Select a role.' }),
     })
     .safeParse(values);
@@ -43,7 +48,7 @@ export async function updateUserAction(_prev: ActionState, fd: FormData): Promis
     .object({
       userId: idParam,
       role: z.enum(ROLE_KEYS),
-      department: z.enum(DEPARTMENTS),
+      department: optionalDepartment,
       isActive: z.enum(['true', 'false']).transform((v) => v === 'true'),
     })
     .safeParse(formValues(fd));

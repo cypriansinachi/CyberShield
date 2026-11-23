@@ -1,17 +1,40 @@
-export const APP_NAME = 'CIRP';
-export const APP_FULL_NAME = 'Cybersecurity Incident Reporting & Response Platform';
-export const ORG_NAME = process.env.NEXT_PUBLIC_ORG_NAME || 'Demo Organization';
+/**
+ * Branding. CyberShield is the incident reporting and response platform of
+ * Nexora, a (fictional) consumer platform with accounts, payments, a mobile app
+ * and a partner API. Nexora's customers report the security problems they
+ * notice; Nexora's security team triages and responds to them in CyberShield.
+ * Change ORG_NAME here to rebrand the parent organisation.
+ */
+export const APP_NAME = 'CyberShield';
+export const ORG_NAME = 'Nexora';
+export const APP_TAGLINE = `by ${ORG_NAME}`;
+export const APP_FULL_NAME = `${APP_NAME}: ${ORG_NAME} Incident Reporting & Response`;
 export const APP_TIMEZONE = process.env.NEXT_PUBLIC_APP_TIMEZONE || 'Africa/Lagos';
 
+/** What a report is about: the Nexora service the person noticed the problem in. */
+export const SERVICES = [
+  'Website',
+  'Mobile app',
+  'Customer account & sign-in',
+  'Payments & billing',
+  `Emails, texts & calls from ${ORG_NAME}`,
+  'Customer support',
+  'Partner & developer APIs',
+  'Internal systems',
+  'Offices & devices',
+  'Not sure',
+] as const;
+
+/** Departments of Nexora team members (customers have none). */
 export const DEPARTMENTS = [
-  'Administration',
+  'Security Operations',
+  'Information Technology',
+  'Engineering',
+  'Customer Support',
   'Finance',
   'Human Resources',
-  'Information Technology',
-  'Operations',
-  'Sales & Marketing',
   'Legal & Compliance',
-  'Customer Service',
+  'Operations',
   'Executive Office',
   'Other',
 ] as const;

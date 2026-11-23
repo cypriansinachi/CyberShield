@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-# Cybersecurity Incident Reporting & Response Platform (CIRP)
+# CyberShield: Nexora Incident Reporting & Response
 
 FROM node:22-bookworm-slim AS build
 WORKDIR /app
@@ -7,10 +7,9 @@ ENV NEXT_TELEMETRY_DISABLED=1
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
-# Organisation name / timezone are compiled into the UI at build time.
-ARG NEXT_PUBLIC_ORG_NAME="Demo Organization"
+# The display timezone is compiled into the UI at build time.
 ARG NEXT_PUBLIC_APP_TIMEZONE="Africa/Lagos"
-ENV NEXT_PUBLIC_ORG_NAME=$NEXT_PUBLIC_ORG_NAME NEXT_PUBLIC_APP_TIMEZONE=$NEXT_PUBLIC_APP_TIMEZONE
+ENV NEXT_PUBLIC_APP_TIMEZONE=$NEXT_PUBLIC_APP_TIMEZONE
 RUN npm run build
 
 FROM node:22-bookworm-slim AS run

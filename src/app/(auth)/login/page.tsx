@@ -8,11 +8,11 @@ import { config } from '@/server/config';
 export const metadata: Metadata = { title: 'Sign in' };
 
 const DEMO_ACCOUNTS = [
-  ['admin@cirp.local', 'System Administrator'],
-  ['manager@cirp.local', 'Security Manager'],
-  ['analyst@cirp.local', 'Security Analyst'],
-  ['auditor@cirp.local', 'Compliance Auditor'],
-  ['staff@cirp.local', 'Reporter (staff)'],
+  ['admin@nexora.local', 'System Administrator'],
+  ['manager@nexora.local', 'Security Manager'],
+  ['analyst@nexora.local', 'Security Analyst'],
+  ['auditor@nexora.local', 'Compliance Auditor'],
+  ['customer@example.com', 'Customer'],
 ];
 
 export default async function LoginPage({ searchParams }: PageProps<'/login'>) {
@@ -23,7 +23,7 @@ export default async function LoginPage({ searchParams }: PageProps<'/login'>) {
   return (
     <>
       <h2 className="text-2xl font-semibold tracking-tight">Sign in</h2>
-      <p className="mt-1 text-sm text-muted-foreground">Use your organisation account to continue.</p>
+      <p className="mt-1 text-sm text-muted-foreground">Use your CyberShield account to continue.</p>
 
       <div className="mt-6 space-y-3">
         {sp.expired && <Alert tone="warning">Your session has ended. Please sign in again.</Alert>}
@@ -33,7 +33,7 @@ export default async function LoginPage({ searchParams }: PageProps<'/login'>) {
       <ActionForm action={loginAction} className="mt-6 space-y-4">
         <input type="hidden" name="next" value={next} />
         <Field label="Email address" name="email">
-          <Input name="email" type="email" autoComplete="username" required autoFocus placeholder="name@organisation.com" />
+          <Input name="email" type="email" autoComplete="username" required autoFocus placeholder="you@example.com" />
         </Field>
         <Field label="Password" name="password">
           <Input name="password" type="password" autoComplete="current-password" required />
@@ -45,7 +45,7 @@ export default async function LoginPage({ searchParams }: PageProps<'/login'>) {
 
       {config.security.allowSelfRegistration && (
         <p className="mt-6 text-center text-sm text-muted-foreground">
-          New member of staff?{' '}
+          New to CyberShield?{' '}
           <Link href="/register" className="font-medium text-primary hover:underline">
             Create an account
           </Link>

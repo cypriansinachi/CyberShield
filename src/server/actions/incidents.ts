@@ -11,7 +11,7 @@ import type { ActionState } from '@/lib/action-state';
 import { CATEGORY_KEYS, DATA_TYPE_KEYS, ONGOING_KEYS, SCOPE_KEYS, SEVERITY_ORDER } from '@/lib/risk';
 import { STATUS_KEYS } from '@/lib/workflow';
 import { PHASE_LABELS } from '@/lib/playbooks';
-import { DEPARTMENTS } from '@/lib/constants';
+import { SERVICES } from '@/lib/constants';
 
 const impact = z.coerce.number().int().min(0).max(3);
 
@@ -42,8 +42,8 @@ export async function createIncidentAction(_prev: ActionState, fd: FormData): Pr
     title: text('Title', 5, 150),
     description: text('Description', 20, 5000, { multiline: true }),
     detectedAt: dateTimeInput('Date and time discovered', { notFuture: true }),
-    department: z.enum(DEPARTMENTS, { error: 'Select the affected department.' }),
-    affectedAssets: optionalText('Affected systems', 500),
+    affectedService: z.enum(SERVICES, { error: 'Select where you noticed the problem.' }),
+    affectedAssets: optionalText('Affected accounts, pages or devices', 500),
     declaration: z.literal('on', { error: 'Please confirm the information is accurate.' }),
     ...riskFields,
   });

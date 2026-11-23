@@ -6,7 +6,8 @@ import { getIncidentDetail } from '@/server/services/incidents';
 import { recordAudit } from '@/server/audit';
 import { CATEGORIES, DATA_TYPES, ONGOING, SCOPES, SEVERITIES } from '@/lib/risk';
 import { STATUSES, slaStatus } from '@/lib/workflow';
-import { APP_FULL_NAME, ORG_NAME } from '@/lib/constants';
+import { APP_FULL_NAME } from '@/lib/constants';
+import { ROLES } from '@/lib/rbac';
 import { formatBytes, formatDateTime } from '@/lib/format';
 
 export const metadata: Metadata = { title: 'Incident report' };
@@ -39,7 +40,7 @@ export default async function PrintIncidentPage({ params }: PageProps<'/print/in
       </div>
       <header className="border-b-2 border-neutral-900 pb-4">
         <p className="text-xs uppercase tracking-wider text-neutral-500">
-          {ORG_NAME} · {APP_FULL_NAME}
+          {APP_FULL_NAME}
         </p>
         <h1 className="mt-1 text-xl font-bold">Incident report: {i.reference}</h1>
         <p className="mt-1 text-sm">{i.title}</p>
@@ -55,7 +56,7 @@ export default async function PrintIncidentPage({ params }: PageProps<'/print/in
           <Row k="Severity / priority" v={`${SEVERITIES[i.severity].label} / ${i.priority}${i.severityOverridden ? ` (manually set; calculated ${SEVERITIES[i.computedSeverity].label})` : ''}`} />
           <Row k="Risk score" v={`${i.riskScore} / 100`} />
           <Row k="Category" v={CATEGORIES[i.category].label} />
-          <Row k="Reported by" v={d.reporter ? `${d.reporter.fullName} (${d.reporter.department ?? '—'})` : '—'} />
+          <Row k="Reported by" v={d.reporter ? `${d.reporter.fullName} (${ROLES[d.reporter.role].label})` : '—'} />
           <Row k="Assigned to" v={d.assignee?.fullName ?? 'Unassigned'} />
           <Row k="Discovered" v={formatDateTime(i.detectedAt)} />
           <Row k="Reported" v={formatDateTime(i.createdAt)} />
@@ -69,8 +70,8 @@ export default async function PrintIncidentPage({ params }: PageProps<'/print/in
       <p className="mt-2 whitespace-pre-wrap">{i.description}</p>
       <table className="mt-3 w-full">
         <tbody>
-          <Row k="Department" v={i.department} />
-          <Row k="Affected systems" v={i.affectedAssets} />
+          <Row k="Affected service" v={i.affectedService} />
+          <Row k="Affected accounts / devices" v={i.affectedAssets} />
           <Row k="Data involved" v={i.dataTypes.length ? i.dataTypes.map((t) => DATA_TYPES[t].label).join('; ') : 'None reported'} />
           <Row k="Scope" v={SCOPES[i.affectedScope].label} />
           <Row k="Still active (at report)" v={ONGOING[i.ongoing].label} />

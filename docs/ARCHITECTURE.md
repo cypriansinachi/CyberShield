@@ -2,7 +2,7 @@
 
 ## 1. Overview
 
-CIRP is a single Next.js application. Every page is rendered on the server for the current request, mutations go through Server Actions, and all data access passes through one server-side layer that enforces authentication and authorization.
+CyberShield (Nexora's incident reporting and response platform) is a single Next.js application. Every page is rendered on the server for the current request, mutations go through Server Actions, and all data access passes through one server-side layer that enforces authentication and authorization.
 
 ```mermaid
 flowchart LR
@@ -46,7 +46,7 @@ flowchart LR
 
 ```mermaid
 sequenceDiagram
-  actor R as Reporter
+  actor R as Customer
   participant UI as Report form
   participant SA as createIncidentAction
   participant DAL as Data access layer

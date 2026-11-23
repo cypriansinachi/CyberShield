@@ -23,7 +23,7 @@ const COMMON_START: Step[] = [
   ['analysis', 'Preserve evidence (logs, emails, screenshots) and record SHA-256 hashes'],
 ];
 const COMMON_END: Step[] = [
-  ['post', 'Communicate the outcome to the reporter and affected stakeholders'],
+  ['post', 'Communicate the outcome to the reporter and affected customers'],
   ['post', 'Record root cause and lessons learned; update controls if needed'],
 ];
 
@@ -33,7 +33,7 @@ const SPECIFIC: Record<Category, Step[]> = {
     ['containment', 'Block the sender address/domain and malicious URLs at the email gateway'],
     ['containment', 'Purge remaining copies of the message from all mailboxes'],
     ['eradication', 'Reset passwords and revoke sessions for any user who entered credentials'],
-    ['recovery', 'Send a phishing-awareness reminder to affected staff'],
+    ['recovery', 'Warn affected customers and publish a scam alert if Nexora is being impersonated'],
   ],
   malware: [
     ['containment', 'Isolate infected device(s) from the network'],
@@ -89,7 +89,7 @@ const SPECIFIC: Record<Category, Step[]> = {
   social_engineering: [
     ['analysis', 'Establish what information or payment was requested or provided'],
     ['containment', 'Alert finance / banking partners if payment fraud is involved'],
-    ['recovery', 'Warn staff about the specific technique used'],
+    ['recovery', 'Warn customers and the support team about the specific technique used'],
   ],
   vulnerability: [
     ['analysis', 'Confirm the vulnerability and assess exploitability'],

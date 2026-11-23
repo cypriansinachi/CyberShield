@@ -1,6 +1,6 @@
 /**
- * Demo data: users for every role and ~45 realistic incidents spread over the
- * last 60 days, progressed through the workflow with consistent timestamps.
+ * Demo data: Nexora team accounts for every role, customer accounts and ~45
+ * realistic incidents spread over the last 60 days, progressed through the workflow with consistent timestamps.
  *
  *   npm run db:seed            seed an empty database
  *   npm run db:reset           wipe the database, then seed
@@ -15,10 +15,9 @@ import fs from 'node:fs';
 import { createClient } from '@libsql/client';
 import { config } from '@/server/config';
 import { seedDemoData } from '@/server/demo-seed';
+import { ALL_TABLES } from '@/server/db/bootstrap';
 
 const args = new Set(process.argv.slice(2));
-
-const TABLES = ['evidence_blobs', 'attachments', 'incident_tasks', 'incident_events', 'notifications', 'incidents', 'sessions', 'rate_limits', 'audit_logs', 'users'];
 
 /** Wipe the database before seeding (local file deleted; hosted DB tables dropped). */
 async function reset() {
@@ -34,7 +33,7 @@ async function reset() {
     process.exit(1);
   }
   const client = createClient({ url, authToken: config.database.authToken });
-  await client.executeMultiple(TABLES.map((t) => `DROP TABLE IF EXISTS ${t};`).join('\n'));
+  await client.executeMultiple(ALL_TABLES.map((t) => `DROP TABLE IF EXISTS ${t};`).join('\n'));
   client.close();
   console.log('[seed] Dropped all tables in the hosted database.');
 }

@@ -2,15 +2,16 @@
  * Role-based access control (least privilege).
  *
  * Permissions are granted to roles, never directly to users. Object-level
- * checks ("a reporter may only see their own incidents") are enforced in the
+ * checks ("a customer may only see their own reports") are enforced in the
  * incident service, so changing an ID in the URL cannot expose another
  * person's report (IDOR protection).
  */
 
 export const ROLES = {
   reporter: {
-    label: 'Reporter',
-    description: 'Any staff member. Can report incidents and follow the progress of their own reports.',
+    // Stored as 'reporter' in the database; shown to people as "Customer".
+    label: 'Customer',
+    description: 'A Nexora customer. Can report security problems they notice and follow the progress of their own reports.',
   },
   analyst: {
     label: 'Security Analyst',

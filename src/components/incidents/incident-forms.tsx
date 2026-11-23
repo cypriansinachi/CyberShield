@@ -33,7 +33,7 @@ import {
 } from '@/lib/risk';
 import type { Status } from '@/lib/workflow';
 import { PHASE_LABELS } from '@/lib/playbooks';
-import { EVIDENCE_EXTENSIONS, MAX_EVIDENCE_FILES, MAX_EVIDENCE_MB } from '@/lib/constants';
+import { EVIDENCE_EXTENSIONS, MAX_EVIDENCE_FILES, MAX_EVIDENCE_MB, ORG_NAME } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 
 const Hidden = ({ name, value }: { name: string; value: string | number }) => <input type="hidden" name={name} value={value} />;
@@ -314,7 +314,7 @@ export function BreachAssessmentForm({ incidentId, notifiable }: { incidentId: n
       <Field
         name="reason"
         label={notifiable ? 'Why is this NOT a notifiable breach?' : 'Why is this a notifiable breach?'}
-        hint="e.g. data was encrypted, no personal data left the organisation, risk to individuals assessed as unlikely."
+        hint={`e.g. data was encrypted, no personal data left ${ORG_NAME}'s systems, risk to individuals assessed as unlikely.`}
       >
         <Textarea name="reason" rows={2} />
       </Field>
