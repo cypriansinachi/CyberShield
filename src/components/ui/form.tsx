@@ -12,13 +12,14 @@ import {
   useContext,
   useEffect,
   useRef,
+  useState,
   type InputHTMLAttributes,
   type ReactNode,
   type SelectHTMLAttributes,
   type TextareaHTMLAttributes,
 } from 'react';
 import { useFormStatus } from 'react-dom';
-import { Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { idleState, type ActionState } from '@/lib/action-state';
 import { cn } from '@/lib/utils';
 import { buttonClass, type ButtonSize, type ButtonVariant } from './button';
@@ -99,19 +100,44 @@ const controlCls =
   'focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/40 disabled:cursor-not-allowed disabled:opacity-60 ' +
   'aria-[invalid=true]:border-critical aria-[invalid=true]:ring-critical/20';
 
-export function Input({ className, name, defaultValue, ...props }: InputHTMLAttributes<HTMLInputElement>) {
+/**
+ * Text input. Password inputs get an eye button that shows or hides what was
+ * typed; it is hidden again by default, and the browser's password manager
+ * still sees a password field (autoComplete is passed through unchanged).
+ */
+export function Input({ className, name, defaultValue, type, ...props }: InputHTMLAttributes<HTMLInputElement>) {
   const { error, kept } = useField(name);
-  const isSecret = props.type === 'password';
-  return (
+  const isSecret = type === 'password';
+  const [visible, setVisible] = useState(false);
+  const id = props.id ?? name;
+  const input = (
     <input
       name={name}
-      id={props.id ?? name}
+      id={id}
+      type={isSecret && visible ? 'text' : type}
       defaultValue={!isSecret && typeof kept === 'string' ? kept : defaultValue}
       aria-invalid={error ? true : undefined}
       aria-describedby={error && name ? `${name}-error` : undefined}
-      className={cn(controlCls, 'h-9', className)}
+      className={cn(controlCls, 'h-9', isSecret && 'pr-10', className)}
       {...props}
     />
+  );
+  if (!isSecret) return input;
+  return (
+    <div className="relative">
+      {input}
+      <button
+        type="button"
+        onClick={() => setVisible((v) => !v)}
+        aria-label={visible ? 'Hide password' : 'Show password'}
+        aria-pressed={visible}
+        aria-controls={id}
+        title={visible ? 'Hide password' : 'Show password'}
+        className="absolute inset-y-0 right-0 flex w-10 items-center justify-center rounded-r-lg text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+      >
+        {visible ? <EyeOff className="size-4" aria-hidden /> : <Eye className="size-4" aria-hidden />}
+      </button>
+    </div>
   );
 }
 
