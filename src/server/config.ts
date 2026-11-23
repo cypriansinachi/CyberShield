@@ -26,15 +26,29 @@ function secret(name: string): string {
 // Runtime data location (local database file); not a source file to bundle.
 const resolvePath = (p: string) => (path.isAbsolute(p) ? p : path.join(/*turbopackIgnore: true*/ ROOT, p));
 
+// Tolerate values pasted with surrounding quotes or whitespace.
+const envValue = (name: string) => (process.env[name] || '').trim().replace(/^["']|["']$/g, '');
+
 /**
- * Database location (libSQL URL):
- *  - Turso / Vercel:  TURSO_DATABASE_URL=libsql://<db>.turso.io + TURSO_AUTH_TOKEN
- *    (the names the Vercel–Turso integration sets automatically)
- *  - Local / Docker:  a SQLite file, data/cirp.db by default (DATABASE_PATH to move it)
+ * Which database to use (first match wins):
+ *  1. DATABASE_URL + DATABASE_AUTH_TOKEN: an explicit choice. On Vercel, point
+ *     these at the main Turso database. The Vercel–Turso integration can give
+ *     each deployment its own database branch through TURSO_DATABASE_URL; such
+ *     a branch starts as a copy of the main database and is left behind at the
+ *     next deployment, so data created on the site would not carry over.
+ *  2. TURSO_DATABASE_URL + TURSO_AUTH_TOKEN: set automatically by the integration.
+ *  3. Local / Docker: a SQLite file, data/cirp.db by default (DATABASE_PATH to move it).
  */
+export function databaseSource(): { via: 'DATABASE_URL' | 'TURSO_DATABASE_URL' | 'local file'; url: string; token?: string } {
+  const explicit = envValue('DATABASE_URL');
+  if (explicit) return { via: 'DATABASE_URL', url: explicit, token: envValue('DATABASE_AUTH_TOKEN') || envValue('TURSO_AUTH_TOKEN') || undefined };
+  const turso = envValue('TURSO_DATABASE_URL');
+  if (turso) return { via: 'TURSO_DATABASE_URL', url: turso, token: envValue('TURSO_AUTH_TOKEN') || envValue('DATABASE_AUTH_TOKEN') || undefined };
+  return { via: 'local file', url: '' };
+}
+
 function databaseUrl() {
-  // Tolerate values pasted with surrounding quotes or whitespace.
-  const remote = (process.env.TURSO_DATABASE_URL || process.env.DATABASE_URL || '').trim().replace(/^["']|["']$/g, '');
+  const remote = databaseSource().url;
   if (remote) {
     // libsql:// would use a long-lived WebSocket. Serverless functions are frozen
     // between requests, so use stateless HTTPS instead (same database, same API).
@@ -58,8 +72,7 @@ export const config = {
       return databaseUrl();
     },
     get authToken() {
-      const t = (process.env.TURSO_AUTH_TOKEN || process.env.DATABASE_AUTH_TOKEN || '').trim().replace(/^["']|["']$/g, '');
-      return t || undefined;
+      return databaseSource().token;
     },
   },
 

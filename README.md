@@ -178,6 +178,8 @@ Vercel runs the app as serverless functions with a read-only disk, so the databa
 
 Check the deployment at `/api/health` (should return `{"status":"ok"}`), and verify the hosted audit trail at any time with `npm run audit:verify:remote`.
 
+> **Data disappearing after each deploy?** The Vercel–Turso integration can give every deployment its own database branch (named `dpl-…`), copied from the main database and abandoned at the next deploy. `/api/health` warns when this happens. Fix it by adding `DATABASE_URL` and `DATABASE_AUTH_TOKEN` to the Production environment, set to the **main** database's URL and token (the `TURSO_DATABASE_URL` / `TURSO_AUTH_TOKEN` values in `.env.vercel`), then redeploy. These take priority over the integration's per-deployment values.
+
 > Vercel limits request bodies to 4.5 MB, so evidence uploads are capped at 4 MB per submission. On the Hobby plan Vercel Cron runs once a day; the app also escalates overdue SLAs while anyone is signed in (piggy-backing on the notification poll).
 
 ### Node

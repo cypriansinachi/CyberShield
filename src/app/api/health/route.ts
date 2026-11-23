@@ -1,4 +1,5 @@
 import { sqlOne } from '@/server/db';
+import { databaseSource } from '@/server/config';
 import { hasCronSecret } from '@/server/security/cron-auth';
 
 /**
@@ -42,6 +43,12 @@ export async function GET(req: Request) {
   if (!problems.length && users === 0) problems.push('database has no user accounts yet: run "npm run db:seed:remote" or register the first account');
 
   const body: Record<string, unknown> = problems.length ? { status: 'error', problems } : { status: 'ok' };
+  if (process.env.VERCEL && isDeploymentBranch()) {
+    body.warnings = [
+      'This deployment uses its own database branch, so data created on the site will not carry over to the next deployment. ' +
+        'Set DATABASE_URL and DATABASE_AUTH_TOKEN to the main Turso database (see README, Deployment).',
+    ];
+  }
   if (hasCronSecret(req)) body.diagnostics = await diagnostics(databaseOk);
 
   return Response.json(body, {
@@ -50,22 +57,27 @@ export async function GET(req: Request) {
   });
 }
 
-async function diagnostics(databaseOk: boolean) {
-  const raw = (process.env.TURSO_DATABASE_URL || process.env.DATABASE_URL || '').trim().replace(/^["']|["']$/g, '');
-  let database: Record<string, unknown> = { via: 'local file', scheme: 'file' };
-  if (raw) {
-    try {
-      const u = new URL(raw);
-      database = {
-        via: process.env.TURSO_DATABASE_URL ? 'TURSO_DATABASE_URL' : 'DATABASE_URL',
-        scheme: u.protocol.replace(':', ''),
-        name: u.hostname ? u.hostname.split('.')[0] : u.pathname,
-        tokenSet: !!(process.env.TURSO_AUTH_TOKEN || process.env.DATABASE_AUTH_TOKEN),
-      };
-    } catch {
-      database = { via: process.env.TURSO_DATABASE_URL ? 'TURSO_DATABASE_URL' : 'DATABASE_URL', scheme: 'unparseable' };
-    }
+/** The database's name, e.g. "cybershield-acme" from libsql://cybershield-acme.turso.io (never the token). */
+function databaseName(url: string) {
+  try {
+    const u = new URL(url);
+    return u.hostname ? u.hostname.split('.')[0] : u.pathname;
+  } catch {
+    return null;
   }
+}
+
+/** Vercel–Turso per-deployment branches are named after the deployment ID (dpl-…). */
+function isDeploymentBranch() {
+  const src = databaseSource();
+  return src.via === 'TURSO_DATABASE_URL' && /^dpl-/.test(databaseName(src.url) ?? '');
+}
+
+async function diagnostics(databaseOk: boolean) {
+  const src = databaseSource();
+  const database = src.url
+    ? { via: src.via, scheme: src.url.split(':')[0], name: databaseName(src.url), tokenSet: !!src.token, deploymentBranch: isDeploymentBranch() }
+    : { via: src.via, scheme: 'file' };
   const count = async (sql: string) => (databaseOk ? (await sqlOne<Record<string, unknown>>(sql)) : null);
   return {
     database,
